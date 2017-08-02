@@ -39,7 +39,7 @@ Motion requires the use of a configuration file, so in order to get this, use th
 
 If you're not using Docker, then you should be able to find this file in `/etc/motion` or `/usr/local/etc/motion`. It may be called `motion.conf` or `motion-dist.conf`.
 
-#### Camera Setup
+### Camera Setup
 
 To set up Motion to connect to your IP camera, edit the `motion.conf` file and perform the following actions:
 
@@ -54,20 +54,21 @@ Note, for my cameras I use the `mjpeg://` 'protocol', [as described in the Motio
 
     netcam_url mjpeg://10.0.0.10/videostream.cgi?loginuse=admin&loginpas=mypassword
 
-#### Disable Picture and Video Capture
+### Disable Picture and Video Capture
 
 Since we're only using Motion to detect motion and not to record the events, change the following two config values from 'on' to 'off':
 
     output_pictures off
     ffmpeg_output_movies off
 
-#### Event Length
+### Event Length
 
 By default each event lasts for 60 seconds after the motion is no longer detected. This is too long for my liking, so adjust the amount of seconds with the `event_gap` configuration value:
 
     event_gap 5
 
-#### MQTT Configuration
+MQTT Configuration
+------------------
 
 Finally, in order to actually publish the events to an MQTT topic, you must set the `on_event_start` and `on_event_end` configuration values. For example:
 
