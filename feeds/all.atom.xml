@@ -120,4 +120,224 @@ on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;This should now be enough to view the motion sensor state in Home Assistant. You may now want to set up automations using the input of the motion sensor, in which case I recommend you start with &lt;a href="https://home-assistant.io/docs/automation/"&gt;Automating Home Assistant&lt;/a&gt;.&lt;/p&gt;</content><category term="home-assistant"></category><category term="mqtt"></category><category term="motion"></category><category term="camera"></category><category term="cctv"></category><category term="docker"></category><category term="home-automation"></category></entry></feed>
+&lt;p&gt;This should now be enough to view the motion sensor state in Home Assistant. You may now want to set up automations using the input of the motion sensor, in which case I recommend you start with &lt;a href="https://home-assistant.io/docs/automation/"&gt;Automating Home Assistant&lt;/a&gt;.&lt;/p&gt;</content><category term="home-assistant"></category><category term="mqtt"></category><category term="motion"></category><category term="camera"></category><category term="cctv"></category><category term="docker"></category><category term="home-automation"></category></entry><entry><title>Ministry of Recycled Sound</title><link href="https://flyte.github.io/ministry-of-recycled-sound.html" rel="alternate"></link><published>2014-01-04T00:00:00+00:00</published><updated>2014-01-04T00:00:00+00:00</updated><author><name>Ellis Percival</name></author><id>tag:flyte.github.io,2014-01-04:/ministry-of-recycled-sound.html</id><summary type="html">
+    An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was &lt;a href="http://youtu.be/PSYxT9GM0fQ"&gt;Darude - Sandstorm&lt;/a&gt;. It occurred to me that all of the Ministry of Sound albums I can …</summary><content type="html">
+    An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was &lt;a href="http://youtu.be/PSYxT9GM0fQ"&gt;Darude - Sandstorm&lt;/a&gt;. It occurred to me that all of the Ministry of Sound albums I can remember watching adverts for contained this one track. This made me wonder how many other songs kept getting put on the MoS albums repeatedly.&lt;br&gt;
+    &lt;br&gt;
+    What I wanted to see was a list of tracks sorted by how many times they had appeared on a Ministry of Sound album. I had a hunch that Sandstorm would be at the top.&lt;br&gt;
+    &lt;br&gt;
+    &lt;a name="more"&gt;&lt;/a&gt;&lt;br&gt;
+    &lt;h3&gt;Fetch the database&lt;/h3&gt;
+    &lt;a href="http://www.freedb.org/"&gt;FreeDB&lt;/a&gt;&amp;nbsp;is a license-free database for use in looking up track listings for CDs. We start by &lt;a href="http://www.freedb.org/en/download__database.10.html"&gt;downloading the whole database&lt;/a&gt; (roughly 800MB bzipped file) and extracting its contents to the filesystem:
+    &lt;script class="brush: shell" type="syntaxhighlighter"&gt;&lt;![CDATA[tar xjvf&amp;nbsp;freedb-complete-20140101.tar.bz2]]&gt;&lt;/script&gt;
+    Producing the following file structure:&lt;br&gt;
+    &lt;script class="brush: plain" type="syntaxhighlighter"&gt;&lt;![CDATA[.
+    ├── blues
+    │ &amp;nbsp; ├── 0008a512
+    │ &amp;nbsp; ├── 000a8112
+    │ &amp;nbsp; ├── 000a9612
+    &amp;lt;snip&amp;gt;
+    ├── classical
+    │ &amp;nbsp; ├──&amp;nbsp;00073614
+    │ &amp;nbsp; ├──&amp;nbsp;00088112
+    │ &amp;nbsp; ├──&amp;nbsp;00092526
+    &amp;lt;snip&amp;gt;
+    ├── country
+    etc.]]&gt;&lt;/script&gt;
+
+    &lt;span style="font-family: inherit;"&gt;Each file (000a9612,&amp;nbsp;00073614 etc.)&lt;/span&gt;&amp;nbsp;represents a single CD and they're organised into genre directories. The files contain, among other things, the track listing of the CD.&lt;br&gt;
+    &lt;br&gt;
+    &lt;h3&gt;Search for Ministry of Sound CDs&lt;/h3&gt;
+    Since there are over three million CDs listed in FreeDB, the files needed paring down a little.&lt;br&gt;
+    &lt;script class="brush: shell" type="syntaxhighlighter"&gt;&lt;![CDATA[grep -ir "ministry of sound" . | perl -n -e '/(^.+?):/ &amp;amp;&amp;amp; print $1."\n"' | uniq &amp;gt; ministry.txt]]&gt;&lt;/script&gt;
+    &lt;span style="font-family: inherit;"&gt;This grep command searches recursively and case-insensitively for the exact string "ministry of sound". It will normally output something like&lt;/span&gt;&lt;br&gt;
+    &lt;script class="brush: plain" type="syntaxhighlighter"&gt;&lt;![CDATA[./blues/4512b117:DTITLE=Various Artists / Ministry of Sound: Sessions Ten]]&gt;&lt;/script&gt;
+    &lt;span style="font-family: inherit;"&gt;but all we care about is the file name (4512b117) so we use perl regex to capture and print it with a newline appended. This will produce duplicate file names, so we pipe it to uniq and finally output to a file called ministry.txt.&amp;nbsp;&lt;/span&gt;&lt;span style="font-family: inherit;"&gt;This command took a long time to complete, but would have been a whole lot slower had we have done it using Python.&lt;/span&gt;&lt;br&gt;
+    &lt;br&gt;
+    &lt;span style="font-family: inherit;"&gt;Now we have a list of Ministry of Sound CDs, we copy the files into their own directory since we don't care what genre they're listed as.&lt;/span&gt;&lt;br&gt;
+    &lt;script class="brush: shell" type="syntaxhighlighter"&gt;&lt;![CDATA[mkdir ministry
+    cat ministry.txt | xargs -I {} cp {} ministry/]]&gt;&lt;/script&gt;
+    &lt;span style="font-family: inherit;"&gt;We now have all of the CD files in one directory so we can move on to using Python to figure out the answer to our question.&lt;/span&gt;&lt;br&gt;
+    &lt;br&gt;
+    &lt;h3&gt;Parse the CD files&lt;/h3&gt;
+    &lt;span style="font-family: inherit;"&gt;The first issue we need to solve is that some of the track names are too long to fit on a single line in the CD file.&lt;/span&gt;&lt;br&gt;
+    &lt;script class="brush: plain" type="syntaxhighlighter"&gt;&lt;![CDATA[TTITLE13=David Morales and Larent Garnier / Ministry of Sound Dance Pa
+    TTITLE13=rty Fragment]]&gt;&lt;/script&gt;
+    We create a function which parses each line of the CD file and creates a dictionary of the keys and values. If a key is already in the dictionary, it will concatenate the value onto it.&lt;br&gt;
+    &lt;script class="brush: python" type="syntaxhighlighter"&gt;&lt;![CDATA[def parse_cd(filename, replacements={}):
+     """
+     Takes the path to a FreeDB CD file and parses all
+     key/value pairs into a dictionary.
+     """
+     lines = {}
+     with open(filename, "r") as f:
+      for line in f.readlines():
+       # Remove newline chars
+       line = line.rstrip()
+       # Ignore any comments or lines without an equals in
+       if "=" not in line or line.startswith("#"):
+        continue
+
+       # Extract the keys and values, forcing the values to be
+       # lower case
+       eq_index = line.index("=")
+       key = line[:eq_index]
+       value = line[eq_index+1:].lower()
+
+       # Take a dictionary of strings to search and replace eg.
+       # {" (original mix)": "", " - ": " / "}
+       for old, new in replacements.items():
+        value = value.replace(old, new)
+
+       # Check for the existence of a partial line in the
+       # dictionary first and then append the rest of the
+       # value if it exists.
+       if key in lines:
+        lines[key] += value
+       else:
+        lines[key] = value
+     return lines]]&gt;&lt;/script&gt;
+    Within this function we also replace certain characters and strings. Some of the delimiters are inconsistent in FreeDB, so we make an effort to replace them all with "/". We also remove any occurrences of " (original mix)" since these are indeed the original tracks.&lt;br&gt;
+    &lt;script class="brush: python" type="syntaxhighlighter"&gt;&lt;![CDATA[REPLACEMENTS = {
+     " (original mix)": "",
+     " - ": " / ",
+     "-" : " / ",
+     " / ": "/"
+    }]]&gt;&lt;/script&gt;
+    &lt;span style="font-family: inherit;"&gt;We create a REPLACEMENTS constant to put at the top of our script and pass it to the parse_cd function at runtime.&lt;/span&gt;&lt;br&gt;
+    &lt;br&gt;
+    &lt;h3&gt;Count up the tracks&lt;/h3&gt;
+    &lt;div&gt;We now have all the tools we need to count up the tracks.&lt;/div&gt;
+    &lt;script class="brush: python" type="syntaxhighlighter"&gt;&lt;![CDATA[if __name__ == "__main__":
+     tracks_count = {}
+
+     for filename in os.listdir(DB_DIR):
+      # Parse the CD
+      cd = parse_cd(os.path.join(DB_DIR, filename), REPLACEMENTS)
+      # Extract the tracks
+      tracks = [
+       cd[x] for x in cd.keys() if x.startswith("TTITLE")]
+
+      for track in tracks:
+       # If the track has appeared already, increment its counter
+       # otherwise add it and start it off at 1.
+       if track in tracks_count:
+        tracks_count[track] += 1
+       else:
+        tracks_count[track] = 1
+
+     # Finally, sort the tracks_count dictionary by
+     # amount of appearances
+     for track_count in sorted(
+       tracks_count.items(), key=lambda x: x[1]):
+      print "%s: %s" % track_count]]&gt;&lt;/script&gt;
+    &lt;span style="font-family: inherit;"&gt;We create a tracks_count dictionary to store the amount of appearances of each track. Next, we list the directory which contains all of the CD files and parse the files. We grab the tracks (the key always starts with "TTITLE") &amp;nbsp;and either increment an existing entry in tracks_count or set it to 1 if it is its first appearance on a CD. Finally, we sort the tracks_count dictionary incrementally so that the most common track appears last on our console output and then print the whole lot.&lt;/span&gt;&lt;br&gt;
+    &lt;br&gt;
+    &lt;h3&gt;The results&lt;/h3&gt;
+    &lt;script class="brush: plain" type="syntaxhighlighter"&gt;&lt;![CDATA[~/workspace/ministry $ python ministry.py | tail -n 30
+    iio/rapture: 9
+    atb/9pm (till i come): 9
+    deepest blue/give it away: 9
+    armand van helden/mymymy: 10
+    tomcraft/loneliness: 10
+    underworld/born slippy: 10
+    shakedown/at night: 10
+    supermode/tell me why: 10
+    double 99/rip groove: 10
+    yves larock/rise up: 10
+    jakatta/american dream: 10
+    alter ego/rocker: 10
+    jaydee/plastic dreams: 10
+    switch/a bit patchy: 10
+    kings of tomorrow/finally: 10
+    junior jack/stupidisco: 11
+    static revenger/happy people: 11
+    strike/u sure do: 11
+    paul johnson/get get down: 11
+    fedde le grand/put your hands up for detroit: 12
+    ministry of sound / the annual 2005 disc #2: 12
+    public domain/operation blade: 12
+    dee dee/forever: 13
+    eric prydz/call on me: 14
+    chill out session / disc 2: 14
+    storm/time to burn: 16
+    paffendorf/be cool: 16
+    mylo/drop the pressure: 16
+    roger sanchez/another chance: 21
+    darude/sandstorm: 25]]&gt;&lt;/script&gt;
+    &lt;div&gt;
+    &lt;span style="font-family: inherit;"&gt;The top 30 most common tracks used on Ministry of Sound CD releases. Look who's sitting pretty with 25 appearances :)&lt;/span&gt;&lt;/div&gt;
+    &lt;div&gt;&lt;br&gt;
+    I must admit, I thought these tracks would show up more regularly, considering the amount of CD files we were searching through (1,229), but I'm happy that at least my prediction was correct. Next time you see an advert for a MoS album keep an ear out for &lt;a href="http://youtu.be/PSYxT9GM0fQ"&gt;Darude - Sandstorm&lt;/a&gt;!&lt;/div&gt;
+    &lt;div&gt;
+    &lt;br&gt;
+    &lt;h3&gt;The full script&lt;/h3&gt;
+    &lt;script class="brush: python" type="syntaxhighlighter"&gt;&lt;![CDATA[import os
+    import json
+    DB_DIR = "ministry"
+    REPLACEMENTS = {
+     " (original mix)": "",
+     " - ": " / ",
+     "-" : " / ",
+     " / ": "/"
+    }
+
+    def parse_cd(filename, replacements={}):
+     """
+     Takes the path to a FreeDB CD file and parses all
+     key/value pairs into a dictionary.
+     """
+     lines = {}
+     with open(filename, "r") as f:
+      for line in f.readlines():
+       # Remove newline chars
+       line = line.rstrip()
+       # Ignore any comments or lines without an equals in
+       if "=" not in line or line.startswith("#"):
+        continue
+
+       # Extract the keys and values, forcing the values to be
+       # lower case
+       eq_index = line.index("=")
+       key = line[:eq_index]
+       value = line[eq_index+1:].lower()
+
+       # Take a dictionary of strings to search and replace eg.
+       # {" (original mix)": "", " - ": " / "}
+       for old, new in replacements.items():
+        value = value.replace(old, new)
+
+       # Check for the existence of a partial line in the
+       # dictionary first and then append the rest of the
+       # value if it exists.
+       if key in lines:
+        lines[key] += value
+       else:
+        lines[key] = value
+     return lines
+
+    if __name__ == "__main__":
+     tracks_count = {}
+
+     for filename in os.listdir(DB_DIR):
+      # Parse the CD
+      cd = parse_cd(os.path.join(DB_DIR, filename), REPLACEMENTS)
+      # Extract the tracks
+      tracks = [
+       cd[x] for x in cd.keys() if x.startswith("TTITLE")]
+
+      for track in tracks:
+       # If the track has appeared already, increment its counter
+       # otherwise add it and start it off at 1.
+       if track in tracks_count:
+        tracks_count[track] += 1
+       else:
+        tracks_count[track] = 1
+
+     # Finally, sort the tracks_count dictionary by
+     # amount of appearances
+     for track_count in sorted(
+       tracks_count.items(), key=lambda x: x[1]):
+      print "%s: %s" % track_count]]&gt;&lt;/script&gt;
+    &lt;/div&gt;
+  </content></entry></feed>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="Ellis Percival" />
+        <meta name="copyright" content="Ellis Percival" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content=", Blog, " />
+
+<meta property="og:title" content="Ministry of Recycled Sound "/>
+<meta property="og:url" content="https://flyte.github.io/ministry-of-recycled-sound.html" />
+<meta property="og:description" content="An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you&#39;ll get on the album - one of which was Darude - Sandstorm. It occurred to me that all of the Ministry of Sound albums I can …" />
+<meta property="og:site_name" content="Beta not Best" />
+<meta property="og:article:author" content="Ellis Percival" />
+<meta property="og:article:published_time" content="2014-01-04T00:00:00+00:00" />
+<meta name="twitter:title" content="Ministry of Recycled Sound ">
+<meta name="twitter:description" content="An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you&#39;ll get on the album - one of which was Darude - Sandstorm. It occurred to me that all of the Ministry of Sound albums I can …">
+
+        <title>Ministry of Recycled Sound  · Beta not Best
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="https://flyte.github.io/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="https://flyte.github.io/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="https://flyte.github.io/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="https://flyte.github.io/theme/css/custom.css" media="screen">
+        <link href="https://flyte.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Beta not Best - Full Atom Feed" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="https://flyte.github.io/"><span class=site-name>Beta not Best</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="https://flyte.github.io">Home</a></li>
+                            <li ><a href="https://flyte.github.io/categories.html">Categories</a></li>
+                            <li ><a href="https://flyte.github.io/tags.html">Tags</a></li>
+                            <li ><a href="https://flyte.github.io/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="https://flyte.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="https://flyte.github.io/ministry-of-recycled-sound.html"> Ministry of Recycled Sound  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            
+    An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was <a href="http://youtu.be/PSYxT9GM0fQ">Darude - Sandstorm</a>. It occurred to me that all of the Ministry of Sound albums I can remember watching adverts for contained this one track. This made me wonder how many other songs kept getting put on the MoS albums repeatedly.<br>
+    <br>
+    What I wanted to see was a list of tracks sorted by how many times they had appeared on a Ministry of Sound album. I had a hunch that Sandstorm would be at the top.<br>
+    <br>
+    <a name="more"></a><br>
+    <h3>Fetch the database</h3>
+    <a href="http://www.freedb.org/">FreeDB</a>&nbsp;is a license-free database for use in looking up track listings for CDs. We start by <a href="http://www.freedb.org/en/download__database.10.html">downloading the whole database</a> (roughly 800MB bzipped file) and extracting its contents to the filesystem:
+    <script class="brush: shell" type="syntaxhighlighter"><![CDATA[tar xjvf&nbsp;freedb-complete-20140101.tar.bz2]]></script>
+    Producing the following file structure:<br>
+    <script class="brush: plain" type="syntaxhighlighter"><![CDATA[.
+    ├── blues
+    │ &nbsp; ├── 0008a512
+    │ &nbsp; ├── 000a8112
+    │ &nbsp; ├── 000a9612
+    &lt;snip&gt;
+    ├── classical
+    │ &nbsp; ├──&nbsp;00073614
+    │ &nbsp; ├──&nbsp;00088112
+    │ &nbsp; ├──&nbsp;00092526
+    &lt;snip&gt;
+    ├── country
+    etc.]]></script>
+
+    <span style="font-family: inherit;">Each file (000a9612,&nbsp;00073614 etc.)</span>&nbsp;represents a single CD and they're organised into genre directories. The files contain, among other things, the track listing of the CD.<br>
+    <br>
+    <h3>Search for Ministry of Sound CDs</h3>
+    Since there are over three million CDs listed in FreeDB, the files needed paring down a little.<br>
+    <script class="brush: shell" type="syntaxhighlighter"><![CDATA[grep -ir "ministry of sound" . | perl -n -e '/(^.+?):/ &amp;&amp; print $1."\n"' | uniq &gt; ministry.txt]]></script>
+    <span style="font-family: inherit;">This grep command searches recursively and case-insensitively for the exact string "ministry of sound". It will normally output something like</span><br>
+    <script class="brush: plain" type="syntaxhighlighter"><![CDATA[./blues/4512b117:DTITLE=Various Artists / Ministry of Sound: Sessions Ten]]></script>
+    <span style="font-family: inherit;">but all we care about is the file name (4512b117) so we use perl regex to capture and print it with a newline appended. This will produce duplicate file names, so we pipe it to uniq and finally output to a file called ministry.txt.&nbsp;</span><span style="font-family: inherit;">This command took a long time to complete, but would have been a whole lot slower had we have done it using Python.</span><br>
+    <br>
+    <span style="font-family: inherit;">Now we have a list of Ministry of Sound CDs, we copy the files into their own directory since we don't care what genre they're listed as.</span><br>
+    <script class="brush: shell" type="syntaxhighlighter"><![CDATA[mkdir ministry
+    cat ministry.txt | xargs -I {} cp {} ministry/]]></script>
+    <span style="font-family: inherit;">We now have all of the CD files in one directory so we can move on to using Python to figure out the answer to our question.</span><br>
+    <br>
+    <h3>Parse the CD files</h3>
+    <span style="font-family: inherit;">The first issue we need to solve is that some of the track names are too long to fit on a single line in the CD file.</span><br>
+    <script class="brush: plain" type="syntaxhighlighter"><![CDATA[TTITLE13=David Morales and Larent Garnier / Ministry of Sound Dance Pa
+    TTITLE13=rty Fragment]]></script>
+    We create a function which parses each line of the CD file and creates a dictionary of the keys and values. If a key is already in the dictionary, it will concatenate the value onto it.<br>
+    <script class="brush: python" type="syntaxhighlighter"><![CDATA[def parse_cd(filename, replacements={}):
+     """
+     Takes the path to a FreeDB CD file and parses all
+     key/value pairs into a dictionary.
+     """
+     lines = {}
+     with open(filename, "r") as f:
+      for line in f.readlines():
+       # Remove newline chars
+       line = line.rstrip()
+       # Ignore any comments or lines without an equals in
+       if "=" not in line or line.startswith("#"):
+        continue
+
+       # Extract the keys and values, forcing the values to be
+       # lower case
+       eq_index = line.index("=")
+       key = line[:eq_index]
+       value = line[eq_index+1:].lower()
+
+       # Take a dictionary of strings to search and replace eg.
+       # {" (original mix)": "", " - ": " / "}
+       for old, new in replacements.items():
+        value = value.replace(old, new)
+
+       # Check for the existence of a partial line in the
+       # dictionary first and then append the rest of the
+       # value if it exists.
+       if key in lines:
+        lines[key] += value
+       else:
+        lines[key] = value
+     return lines]]></script>
+    Within this function we also replace certain characters and strings. Some of the delimiters are inconsistent in FreeDB, so we make an effort to replace them all with "/". We also remove any occurrences of " (original mix)" since these are indeed the original tracks.<br>
+    <script class="brush: python" type="syntaxhighlighter"><![CDATA[REPLACEMENTS = {
+     " (original mix)": "",
+     " - ": " / ",
+     "-" : " / ",
+     " / ": "/"
+    }]]></script>
+    <span style="font-family: inherit;">We create a REPLACEMENTS constant to put at the top of our script and pass it to the parse_cd function at runtime.</span><br>
+    <br>
+    <h3>Count up the tracks</h3>
+    <div>We now have all the tools we need to count up the tracks.</div>
+    <script class="brush: python" type="syntaxhighlighter"><![CDATA[if __name__ == "__main__":
+     tracks_count = {}
+
+     for filename in os.listdir(DB_DIR):
+      # Parse the CD
+      cd = parse_cd(os.path.join(DB_DIR, filename), REPLACEMENTS)
+      # Extract the tracks
+      tracks = [
+       cd[x] for x in cd.keys() if x.startswith("TTITLE")]
+
+      for track in tracks:
+       # If the track has appeared already, increment its counter
+       # otherwise add it and start it off at 1.
+       if track in tracks_count:
+        tracks_count[track] += 1
+       else:
+        tracks_count[track] = 1
+
+     # Finally, sort the tracks_count dictionary by
+     # amount of appearances
+     for track_count in sorted(
+       tracks_count.items(), key=lambda x: x[1]):
+      print "%s: %s" % track_count]]></script>
+    <span style="font-family: inherit;">We create a tracks_count dictionary to store the amount of appearances of each track. Next, we list the directory which contains all of the CD files and parse the files. We grab the tracks (the key always starts with "TTITLE") &nbsp;and either increment an existing entry in tracks_count or set it to 1 if it is its first appearance on a CD. Finally, we sort the tracks_count dictionary incrementally so that the most common track appears last on our console output and then print the whole lot.</span><br>
+    <br>
+    <h3>The results</h3>
+    <script class="brush: plain" type="syntaxhighlighter"><![CDATA[~/workspace/ministry $ python ministry.py | tail -n 30
+    iio/rapture: 9
+    atb/9pm (till i come): 9
+    deepest blue/give it away: 9
+    armand van helden/mymymy: 10
+    tomcraft/loneliness: 10
+    underworld/born slippy: 10
+    shakedown/at night: 10
+    supermode/tell me why: 10
+    double 99/rip groove: 10
+    yves larock/rise up: 10
+    jakatta/american dream: 10
+    alter ego/rocker: 10
+    jaydee/plastic dreams: 10
+    switch/a bit patchy: 10
+    kings of tomorrow/finally: 10
+    junior jack/stupidisco: 11
+    static revenger/happy people: 11
+    strike/u sure do: 11
+    paul johnson/get get down: 11
+    fedde le grand/put your hands up for detroit: 12
+    ministry of sound / the annual 2005 disc #2: 12
+    public domain/operation blade: 12
+    dee dee/forever: 13
+    eric prydz/call on me: 14
+    chill out session / disc 2: 14
+    storm/time to burn: 16
+    paffendorf/be cool: 16
+    mylo/drop the pressure: 16
+    roger sanchez/another chance: 21
+    darude/sandstorm: 25]]></script>
+    <div>
+    <span style="font-family: inherit;">The top 30 most common tracks used on Ministry of Sound CD releases. Look who's sitting pretty with 25 appearances :)</span></div>
+    <div><br>
+    I must admit, I thought these tracks would show up more regularly, considering the amount of CD files we were searching through (1,229), but I'm happy that at least my prediction was correct. Next time you see an advert for a MoS album keep an ear out for <a href="http://youtu.be/PSYxT9GM0fQ">Darude - Sandstorm</a>!</div>
+    <div>
+    <br>
+    <h3>The full script</h3>
+    <script class="brush: python" type="syntaxhighlighter"><![CDATA[import os
+    import json
+    DB_DIR = "ministry"
+    REPLACEMENTS = {
+     " (original mix)": "",
+     " - ": " / ",
+     "-" : " / ",
+     " / ": "/"
+    }
+
+    def parse_cd(filename, replacements={}):
+     """
+     Takes the path to a FreeDB CD file and parses all
+     key/value pairs into a dictionary.
+     """
+     lines = {}
+     with open(filename, "r") as f:
+      for line in f.readlines():
+       # Remove newline chars
+       line = line.rstrip()
+       # Ignore any comments or lines without an equals in
+       if "=" not in line or line.startswith("#"):
+        continue
+
+       # Extract the keys and values, forcing the values to be
+       # lower case
+       eq_index = line.index("=")
+       key = line[:eq_index]
+       value = line[eq_index+1:].lower()
+
+       # Take a dictionary of strings to search and replace eg.
+       # {" (original mix)": "", " - ": " / "}
+       for old, new in replacements.items():
+        value = value.replace(old, new)
+
+       # Check for the existence of a partial line in the
+       # dictionary first and then append the rest of the
+       # value if it exists.
+       if key in lines:
+        lines[key] += value
+       else:
+        lines[key] = value
+     return lines
+
+    if __name__ == "__main__":
+     tracks_count = {}
+
+     for filename in os.listdir(DB_DIR):
+      # Parse the CD
+      cd = parse_cd(os.path.join(DB_DIR, filename), REPLACEMENTS)
+      # Extract the tracks
+      tracks = [
+       cd[x] for x in cd.keys() if x.startswith("TTITLE")]
+
+      for track in tracks:
+       # If the track has appeared already, increment its counter
+       # otherwise add it and start it off at 1.
+       if track in tracks_count:
+        tracks_count[track] += 1
+       else:
+        tracks_count[track] = 1
+
+     # Finally, sort the tracks_count dictionary by
+     # amount of appearances
+     for track_count in sorted(
+       tracks_count.items(), key=lambda x: x[1]):
+      print "%s: %s" % track_count]]></script>
+    </div>
+  
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2014-01-04T00:00:00+00:00">Jan 4, 2014</time>
+            <h4>Category</h4>
+            <a class="category-link" href="https://flyte.github.io/categories.html#blog-ref">Blog</a>
+<h4>Contact</h4>
+    <a href="#" title="My You can add links in your config file Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-you can add links in your config file sidebar-social-links"></i></a>
+    <a href="#" title="My Another social link Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-another social link sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="http://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>
