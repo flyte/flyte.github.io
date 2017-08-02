@@ -46,7 +46,9 @@ To set up Motion to connect to your IP camera, edit the `motion.conf` file and p
 - Comment out the `videodevice /dev/video0` line
 - Uncomment the `netcam_url` line and set it to the URL of your video camera. For example:
 
-    netcam_url http://10.0.0.10/videostream.cgi?loginuse=admin&loginpas=mypassword
+```
+netcam_url http://10.0.0.10/videostream.cgi?loginuse=admin&loginpas=mypassword
+```
 
 Note, for my cameras I use the `mjpeg://` 'protocol', [as described in the Motion guide](https://htmlpreview.github.io/?https://github.com/Motion-Project/motion/blob/master/motion_guide.html#netcam_url):
 
