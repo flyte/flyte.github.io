@@ -1,12 +1,5 @@
----
-layout: post
-title: "MQTT Camera Based Motion Tracking for Home Assistant"
-date: 2017-08-02
-categories: blog home-automation
-tags: home-assistant mqtt motion camera cctv docker home-automation
----
-
-# {{ page.title }}
+Title: MQTT Camera Based Motion Tracking for Home Assistant
+Tags: home-assistant, mqtt, motion, camera, cctv, docker, home-automation
 
 This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software [Motion](https://github.com/Motion-Project/motion), and publish the motion detection over the [MQTT message bus](http://mqtt.org/) for use by [Home Assistant](https://home-assistant.io/), or indeed anything else that may want to use it.
 
@@ -30,9 +23,7 @@ All of the cameras I use serve Motion JPEG streams over HTTP. This method is not
 
 In order to receive a Motion JPEG stream from my cameras, I use the following URL:
 
-```
-http://10.0.0.10/videostream.cgi?loginuse=admin&loginpas=mypassword
-```
+    http://10.0.0.10/videostream.cgi?loginuse=admin&loginpas=mypassword
 
 You may be able to get the URL for your camera by viewing its web interface in your browser (Chrome in this case), right clicking on the video feed and choosing 'Copy image address'.
 
@@ -43,9 +34,8 @@ Motion Configuration
 
 Motion requires the use of a configuration file, so in order to get this, use the following Docker command:
 
-```bash
-docker run -ti --rm flyte/motion-mqtt config > motion.conf
-```
+    :::bash
+    docker run -ti --rm flyte/motion-mqtt config > motion.conf
 
 If you're not using Docker, then you should be able to find this file in `/etc/motion` or `/usr/local/etc/motion`. It may be called `motion.conf` or `motion-dist.conf`.
 
@@ -56,41 +46,31 @@ To set up Motion to connect to your IP camera, edit the `motion.conf` file and p
 - Comment out the `videodevice /dev/video0` line
 - Uncomment the `netcam_url` line and set it to the URL of your video camera. For example:
 
-```
-netcam_url http://10.0.0.10/videostream.cgi?loginuse=admin&loginpas=mypassword
-```
+    netcam_url http://10.0.0.10/videostream.cgi?loginuse=admin&loginpas=mypassword
 
 Note, for my cameras I use the `mjpeg://` 'protocol', [as described in the Motion guide](https://htmlpreview.github.io/?https://github.com/Motion-Project/motion/blob/master/motion_guide.html#netcam_url):
 
-```
-netcam_url mjpeg://10.0.0.10/videostream.cgi?loginuse=admin&loginpas=mypassword
-```
+    netcam_url mjpeg://10.0.0.10/videostream.cgi?loginuse=admin&loginpas=mypassword
 
 #### Disable Picture and Video Capture
 
 Since we're only using Motion to detect motion and not to record the events, change the following two config values from 'on' to 'off':
 
-```
-output_pictures off
-ffmpeg_output_movies off
-```
+    output_pictures off
+    ffmpeg_output_movies off
 
 #### Event Length
 
 By default each event lasts for 60 seconds after the motion is no longer detected. This is too long for my liking, so adjust the amount of seconds with the `event_gap` configuration value:
 
-```
-event_gap 5
-```
+    event_gap 5
 
 #### MQTT Configuration
 
 Finally, in order to actually publish the events to an MQTT topic, you must set the `on_event_start` and `on_event_end` configuration values. For example:
 
-```
-on_event_start mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t "cam/office/motion" -m "on"
-on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t "cam/office/motion" -m "off"
-```
+    on_event_start mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t "cam/office/motion" -m "on"
+    on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t "cam/office/motion" -m "off"
 
 If you're not using my Docker image, then you should be able to get the `mosquitto_pub` tool from the `mosquitto-clients` package. `apt-get install mosquitto-clients` if you're using Ubuntu/Debian/Raspbian.
 
@@ -101,30 +81,27 @@ Run the Service
 
 For my Docker containers, I tend to create a `docker` directory, then organise the files for each of the containers within subdirectories. For example, my three cameras are organised as such:
 
-```
-motion-mqtt
-├── office
-│   ├── config
-│   │   └── motion.conf
-│   └── run.sh
-├── server_room
-│   ├── config
-│   │   └── motion.conf
-│   └── run.sh
-└── workshop
-    ├── config
-    │   └── motion.conf
-    └── run.sh
-```
+    motion-mqtt
+    ├── office
+    │   ├── config
+    │   │   └── motion.conf
+    │   └── run.sh
+    ├── server_room
+    │   ├── config
+    │   │   └── motion.conf
+    │   └── run.sh
+    └── workshop
+        ├── config
+        │   └── motion.conf
+        └── run.sh
 
 Each of the `run.sh` files contains the command I use to run each container:
 
-```bash
-docker run -d \
-    --name motion-mqtt-office \
-    -v /home/flyte/docker/motion-mqtt/office/config:/motion:ro \
-    flyte/motion-mqtt
-```
+    :::bash
+    docker run -d \
+        --name motion-mqtt-office \
+        -v /home/flyte/docker/motion-mqtt/office/config:/motion:ro \
+        flyte/motion-mqtt
 
 Note that the Motion configuration file is within a `config` directory which is shared within the Docker container as a volume at `/motion`. By default, the container will look for a configuration file at `/motion/motion.conf`.
 
@@ -132,18 +109,16 @@ Once you've created a directory structure and created a `run.sh` script, make th
 
 If everything's gone well, you should now be able to wave at the camera and receive log entries along the line of the following:
 
-```
-[1:ml1] [NTC] [ALL] motion_init: Started motion-stream server on port 8081 (auth Disabled)
-[1:ml1] [NTC] [EVT] event_new_video: Source FPS 2
-[1:ml1] [NTC] [ALL] motion_detected: Motion detected - starting event 1
-[1:ml1] [NTC] [ALL] mlp_actions: End of event 1
-[1:ml1] [NTC] [EVT] event_new_video: Source FPS 2
-[1:ml1] [NTC] [ALL] motion_detected: Motion detected - starting event 2
-[1:ml1] [NTC] [ALL] mlp_actions: End of event 2
-[1:ml1] [NTC] [EVT] event_new_video: Source FPS 2
-[1:ml1] [NTC] [ALL] motion_detected: Motion detected - starting event 3
-[1:ml1] [NTC] [ALL] mlp_actions: End of event 3
-```
+    [1:ml1] [NTC] [ALL] motion_init: Started motion-stream server on port 8081 (auth Disabled)
+    [1:ml1] [NTC] [EVT] event_new_video: Source FPS 2
+    [1:ml1] [NTC] [ALL] motion_detected: Motion detected - starting event 1
+    [1:ml1] [NTC] [ALL] mlp_actions: End of event 1
+    [1:ml1] [NTC] [EVT] event_new_video: Source FPS 2
+    [1:ml1] [NTC] [ALL] motion_detected: Motion detected - starting event 2
+    [1:ml1] [NTC] [ALL] mlp_actions: End of event 2
+    [1:ml1] [NTC] [EVT] event_new_video: Source FPS 2
+    [1:ml1] [NTC] [ALL] motion_detected: Motion detected - starting event 3
+    [1:ml1] [NTC] [ALL] mlp_actions: End of event 3
 
 Use your favourite MQTT subscription tool (MQTT Lens or mosquitto_sub in my case) to check that you're publishing events to MQTT properly.
 
@@ -152,22 +127,20 @@ Home Assistant Configuration
 
 To add the new motion sensor to Home Assistant, create a new Binary Sensor:
 
-```yaml
-binary_sensor:
-  - name: Office Motion
-    platform: mqtt
-    state_topic: home/office/motion
-    payload_on: "on"
-    payload_off: "off"
-```
+    :::yaml
+    binary_sensor:
+      - name: Office Motion
+        platform: mqtt
+        state_topic: home/office/motion
+        payload_on: "on"
+        payload_off: "off"
 
 You may also want to set its `device_class` as `motion` so that the UI makes more sense:
 
-```yaml
-homeassistant:
-  customize:
-    binary_sensor.office_motion:
-      device_class: motion
-```
+    :::yaml
+    homeassistant:
+      customize:
+        binary_sensor.office_motion:
+          device_class: motion
 
 This should now be enough to view the motion sensor state in Home Assistant. You may now want to set up automations using the input of the motion sensor, in which case I recommend you start with [Automating Home Assistant](https://home-assistant.io/docs/automation/).
