@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
         <meta charset="utf-8" />
-        <title>MQTT Camera Based Motion Tracking for Home Assistant</title>
+        <title>Beta not Best - home-assistant</title>
         <link rel="stylesheet" href="https://flyte.github.io/theme/css/main.css" />
         <link href="https://flyte.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Beta not Best Atom Feed" />
 
@@ -15,18 +15,13 @@
         <header id="banner" class="body">
                 <h1><a href="https://flyte.github.io/">Beta not Best </a></h1>
                 <nav><ul>
-                    <li class="active"><a href="https://flyte.github.io/category/blog.html">Blog</a></li>
+                    <li><a href="https://flyte.github.io/category/blog.html">Blog</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
-<section id="content" class="body">
-  <article>
-    <header>
-      <h1 class="entry-title">
-        <a href="https://flyte.github.io/mqtt-camera-based-motion-tracking-for-home-assistant.html" rel="bookmark"
-           title="Permalink to MQTT Camera Based Motion Tracking for Home Assistant">MQTT Camera Based Motion Tracking for Home Assistant</a></h1>
-    </header>
 
-    <div class="entry-content">
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="https://flyte.github.io/mqtt-camera-based-motion-tracking-for-home-assistant.html">MQTT Camera Based Motion Tracking for Home Assistant</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2017-08-02T00:00:00+01:00">
                 Published: Wed 02 August 2017
@@ -37,7 +32,7 @@
         </address>
 <p>In <a href="https://flyte.github.io/category/blog.html">Blog</a>.</p>
 <p>tags: <a href="https://flyte.github.io/tag/home-assistant.html">home-assistant</a> <a href="https://flyte.github.io/tag/mqtt.html">mqtt</a> <a href="https://flyte.github.io/tag/motion.html">motion</a> <a href="https://flyte.github.io/tag/camera.html">camera</a> <a href="https://flyte.github.io/tag/cctv.html">cctv</a> <a href="https://flyte.github.io/tag/docker.html">docker</a> <a href="https://flyte.github.io/tag/home-automation.html">home-automation</a> </p>
-</footer><!-- /.post-info -->      <p>This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software <a href="https://github.com/Motion-Project/motion">Motion</a>, and publish the motion detection over the <a href="http://mqtt.org/">MQTT message bus</a> for use by <a href="https://home-assistant.io/">Home Assistant</a>, or indeed anything else that may want to use it.</p>
+</footer><!-- /.post-info --><p>This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software <a href="https://github.com/Motion-Project/motion">Motion</a>, and publish the motion detection over the <a href="http://mqtt.org/">MQTT message bus</a> for use by <a href="https://home-assistant.io/">Home Assistant</a>, or indeed anything else that may want to use it.</p>
 <p>Since I run my services with <a href="https://www.docker.com/">Docker</a>, it utilises a <a href="https://hub.docker.com/r/flyte/motion-mqtt/">Docker Image of my creation</a>, but the configuration details still apply, regardless of how you run Motion.</p>
 <h2>Background</h2>
 <p>I have a handful of IP cameras connected to the network in my home. They are relatively cheap, low powered, sparsely featured devices which just about handle the capture and streaming of video using Motion JPEG.</p>
@@ -158,11 +153,8 @@ on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword
 </pre></div>
 
 
-<p>This should now be enough to view the motion sensor state in Home Assistant. You may now want to set up automations using the input of the motion sensor, in which case I recommend you start with <a href="https://home-assistant.io/docs/automation/">Automating Home Assistant</a>.</p>
-    </div><!-- /.entry-content -->
-
-  </article>
-</section>
+<p>This should now be enough to view the motion sensor state in Home Assistant. You may now want to set up automations using the input of the motion sensor, in which case I recommend you start with <a href="https://home-assistant.io/docs/automation/">Automating Home Assistant</a>.</p>                </article>
+            </aside><!-- /#featured -->
         <section id="extras" class="body">
                 <div class="blogroll">
                         <h2>links</h2>
