@@ -92,7 +92,7 @@
 
 
 <p>If you're not using Docker, then you should be able to find this file in <code>/etc/motion</code> or <code>/usr/local/etc/motion</code>. It may be called <code>motion.conf</code> or <code>motion-dist.conf</code>.</p>
-<h4>Camera Setup</h4>
+<h3>Camera Setup</h3>
 <p>To set up Motion to connect to your IP camera, edit the <code>motion.conf</code> file and perform the following actions:</p>
 <ul>
 <li>Comment out the <code>videodevice /dev/video0</code> line</li>
@@ -107,20 +107,20 @@
 </pre></div>
 
 
-<h4>Disable Picture and Video Capture</h4>
+<h3>Disable Picture and Video Capture</h3>
 <p>Since we're only using Motion to detect motion and not to record the events, change the following two config values from 'on' to 'off':</p>
 <div class="highlight"><pre><span></span>output_pictures off
 ffmpeg_output_movies off
 </pre></div>
 
 
-<h4>Event Length</h4>
+<h3>Event Length</h3>
 <p>By default each event lasts for 60 seconds after the motion is no longer detected. This is too long for my liking, so adjust the amount of seconds with the <code>event_gap</code> configuration value:</p>
 <div class="highlight"><pre><span></span>event_gap 5
 </pre></div>
 
 
-<h4>MQTT Configuration</h4>
+<h2>MQTT Configuration</h2>
 <p>Finally, in order to actually publish the events to an MQTT topic, you must set the <code>on_event_start</code> and <code>on_event_end</code> configuration values. For example:</p>
 <div class="highlight"><pre><span></span>on_event_start mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t &quot;cam/office/motion&quot; -m &quot;on&quot;
 on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t &quot;cam/office/motion&quot; -m &quot;off&quot;

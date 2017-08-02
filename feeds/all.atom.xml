@@ -22,7 +22,7 @@
 
 
 &lt;p&gt;If you're not using Docker, then you should be able to find this file in &lt;code&gt;/etc/motion&lt;/code&gt; or &lt;code&gt;/usr/local/etc/motion&lt;/code&gt;. It may be called &lt;code&gt;motion.conf&lt;/code&gt; or &lt;code&gt;motion-dist.conf&lt;/code&gt;.&lt;/p&gt;
-&lt;h4&gt;Camera Setup&lt;/h4&gt;
+&lt;h3&gt;Camera Setup&lt;/h3&gt;
 &lt;p&gt;To set up Motion to connect to your IP camera, edit the &lt;code&gt;motion.conf&lt;/code&gt; file and perform the following actions:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Comment out the &lt;code&gt;videodevice /dev/video0&lt;/code&gt; line&lt;/li&gt;
@@ -37,20 +37,20 @@
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h4&gt;Disable Picture and Video Capture&lt;/h4&gt;
+&lt;h3&gt;Disable Picture and Video Capture&lt;/h3&gt;
 &lt;p&gt;Since we're only using Motion to detect motion and not to record the events, change the following two config values from 'on' to 'off':&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;output_pictures off
 ffmpeg_output_movies off
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h4&gt;Event Length&lt;/h4&gt;
+&lt;h3&gt;Event Length&lt;/h3&gt;
 &lt;p&gt;By default each event lasts for 60 seconds after the motion is no longer detected. This is too long for my liking, so adjust the amount of seconds with the &lt;code&gt;event_gap&lt;/code&gt; configuration value:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;event_gap 5
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h4&gt;MQTT Configuration&lt;/h4&gt;
+&lt;h2&gt;MQTT Configuration&lt;/h2&gt;
 &lt;p&gt;Finally, in order to actually publish the events to an MQTT topic, you must set the &lt;code&gt;on_event_start&lt;/code&gt; and &lt;code&gt;on_event_end&lt;/code&gt; configuration values. For example:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;on_event_start mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t &amp;quot;cam/office/motion&amp;quot; -m &amp;quot;on&amp;quot;
 on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t &amp;quot;cam/office/motion&amp;quot; -m &amp;quot;off&amp;quot;
