@@ -26,11 +26,12 @@
 &lt;p&gt;To set up Motion to connect to your IP camera, edit the &lt;code&gt;motion.conf&lt;/code&gt; file and perform the following actions:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Comment out the &lt;code&gt;videodevice /dev/video0&lt;/code&gt; line&lt;/li&gt;
-&lt;li&gt;
-&lt;p&gt;Uncomment the &lt;code&gt;netcam_url&lt;/code&gt; line and set it to the URL of your video camera. For example:&lt;/p&gt;
-&lt;p&gt;netcam_url http://10.0.0.10/videostream.cgi?loginuse=admin&amp;amp;loginpas=mypassword&lt;/p&gt;
-&lt;/li&gt;
+&lt;li&gt;Uncomment the &lt;code&gt;netcam_url&lt;/code&gt; line and set it to the URL of your video camera. For example:&lt;/li&gt;
 &lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;netcam_url http://10.0.0.10/videostream.cgi?loginuse=admin&amp;amp;loginpas=mypassword
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;p&gt;Note, for my cameras I use the &lt;code&gt;mjpeg://&lt;/code&gt; 'protocol', &lt;a href="https://htmlpreview.github.io/?https://github.com/Motion-Project/motion/blob/master/motion_guide.html#netcam_url"&gt;as described in the Motion guide&lt;/a&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;netcam_url mjpeg://10.0.0.10/videostream.cgi?loginuse=admin&amp;amp;loginpas=mypassword
 &lt;/pre&gt;&lt;/div&gt;
