@@ -134,12 +134,12 @@ on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword
 │   ├── 0008a512
 │   ├── 000a8112
 │   ├── 000a9612
-&amp;amp;lt;snip&amp;gt;
+&amp;lt;snip&amp;gt;
 ├── classical
 │   ├── 00073614
 │   ├── 00088112
 │   ├── 00092526
-&amp;amp;lt;snip&amp;gt;
+&amp;lt;snip&amp;gt;
 ├── country
 etc.
 &lt;/pre&gt;&lt;/div&gt;
