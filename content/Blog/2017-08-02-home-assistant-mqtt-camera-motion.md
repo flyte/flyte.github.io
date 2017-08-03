@@ -7,6 +7,10 @@ This blog post will demonstrate the process I use to add motion tracking to any 
 
 Since I run my services with [Docker](https://www.docker.com/), it utilises a [Docker Image of my creation](https://hub.docker.com/r/flyte/motion-mqtt/), but the configuration details still apply, regardless of how you run Motion.
 
+Update
+------
+Since posting this blog entry, I've been made aware of the [ffmpeg_motion](https://home-assistant.io/components/binary_sensor.ffmpeg_motion/) component built in to Home Assistant. This pretty much handles everything you can do with Motion, except for perhaps some edge cases. It's worth checking that out first as it's simpler to set up. Read on if you'd like to see an alternative method!
+
 Background
 ----------
 
