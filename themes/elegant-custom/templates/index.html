@@ -56,6 +56,16 @@
             <div class="article-content">
                 {{ LANDING_PAGE_ABOUT.details }}
             </div>
+        {% if SOCIAL %}
+            <div class="article-content">
+              <hr />
+                  <ul>
+                {% for social in SOCIAL %}
+                    <li><a href="{{ social[1] }}">{{ social[0] }}</a></li>
+                {% endfor %}
+                  </ul>
+            </div>
+        {% endif %}
         </div>
         {% endif %}
 
