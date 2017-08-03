@@ -83,7 +83,15 @@ SITEMAP = {
 
 PLUGIN_PATHS = ["plugins"]
 PLUGINS = ['sitemap', 'extract_toc', 'tipue_search']
-MD_EXTENSIONS = ['codehilite(css_class=highlight)', 'extra', 'headerid', 'toc']
+# MD_EXTENSIONS = ['codehilite(css_class=highlight)', 'extra', 'headerid', 'toc']
+MARKDOWN = dict(
+    extension_configs={
+        "codehilite": {"css_class": "highlight"},
+        "extra": {},
+        "headerid": {},
+        "toc": {}
+    }
+)
 COMMENTS_INTRO = "What do you think? Did I get something wrong? Could this be"\
                  " done better? Let me know below."
 DIRECT_TEMPLATES = (("search", "index"))

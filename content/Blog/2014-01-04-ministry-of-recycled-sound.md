@@ -1,6 +1,8 @@
 Title: Ministry of Recycled Sound
 Tags: python
 
+[TOC]
+
 An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was [Darude - Sandstorm](http://youtu.be/PSYxT9GM0fQ). It occurred to me that all of the Ministry of Sound albums I can remember watching adverts for contained this one track. This made me wonder how many other songs kept getting put on the MoS albums repeatedly.
 
 What I wanted to see was a list of tracks sorted by how many times they had appeared on a Ministry of Sound album. I had a hunch that Sandstorm would be at the top.

@@ -1,6 +1,8 @@
 Title: MQTT Camera Based Motion Tracking for Home Assistant
 Tags: home-assistant, mqtt, motion, camera, cctv, docker, home-automation
 
+[TOC]
+
 This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software [Motion](https://github.com/Motion-Project/motion), and publish the motion detection over the [MQTT message bus](http://mqtt.org/) for use by [Home Assistant](https://home-assistant.io/), or indeed anything else that may want to use it.
 
 Since I run my services with [Docker](https://www.docker.com/), it utilises a [Docker Image of my creation](https://hub.docker.com/r/flyte/motion-mqtt/), but the configuration details still apply, regardless of how you run Motion.
