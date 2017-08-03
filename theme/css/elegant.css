@@ -309,6 +309,9 @@ i.fa-envelope:hover {
 i.fa-github:hover, i.fa-github-square:hover, i.fa-github-alt:hover {
     background-color: #000;
 }
+i.fa-mixcloud:hover, i.fa-mixcloud-square:hover, i.fa-mixcloud-alt:hover {
+    background-color: #000;
+}
 i.fa-flickr:hover {
     background-color: #FF0084;
 }
@@ -330,6 +333,10 @@ i.fa-bitbucket:hover, i.fa-bitbucket-square:hover {
 i.fa-stack-exchange:hover {
     background-color: #3A7BC8;
 }
+i.fa-stack-overflow:hover {
+    background-color: #000;
+}
+
 ul.multi-parts-list a {
     color: black;
 }
