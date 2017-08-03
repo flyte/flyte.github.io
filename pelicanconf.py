@@ -34,8 +34,6 @@ DEFAULT_PAGINATION = 10
 # Uncomment following line if you want document-relative URLs when developing
 #RELATIVE_URLS = True
 
-DISQUS_SITENAME = "flyte.github.io"
-
 THEME = "themes/elegant-custom"
 
 LANDING_PAGE_ABOUT = dict(
