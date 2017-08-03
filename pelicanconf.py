@@ -48,3 +48,14 @@ LANDING_PAGE_ABOUT = dict(
     <hr />
     """
 )
+
+SITEMAP = {
+    "format": "xml"
+}
+
+PLUGIN_PATHS = ["plugins"]
+PLUGINS = ['sitemap', 'extract_toc', 'tipue_search']
+MD_EXTENSIONS = ['codehilite(css_class=highlight)', 'extra', 'headerid', 'toc']
+COMMENTS_INTRO = "What do you think? Did I get something wrong? Could this be"\
+                 " done better? Let me know below."
+DIRECT_TEMPLATES = (("search",))
