@@ -27,9 +27,9 @@ LINKS = (('Pelican', 'http://getpelican.com/'),
 
 # Social widget
 SOCIAL = (
-    ("Github", "https://github.com/flyte"),
-    ("Stack Overflow Careers", "https://stackoverflow.com/cv/ellis"),
-    ("Mixcloud", "https://mixcloud.com/ellisfp")
+    ("Github", "https://github.com/flyte", "github"),
+    ("Stack Overflow Careers", "https://stackoverflow.com/cv/ellis", "stack-overflow"),
+    ("Mixcloud", "https://mixcloud.com/ellisfp", "mixcloud")
 )
 
 PROJECTS = [
