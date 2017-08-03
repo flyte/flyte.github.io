@@ -74,33 +74,50 @@
 </div>
 
 <div class="row-fluid">
-        <div class="span8 offset2 article-content">
+    <div class="span2 table-of-content">
+        <nav>
+        <h4>Contents</h4>
+        <div class="toc">
+<ul>
+<li><a href="#background">Background</a></li>
+<li><a href="#camera-configuration">Camera Configuration</a></li>
+<li><a href="#motion-configuration">Motion Configuration</a><ul>
+<li><a href="#camera-setup">Camera Setup</a></li>
+<li><a href="#disable-picture-and-video-capture">Disable Picture and Video Capture</a></li>
+<li><a href="#event-length">Event Length</a></li>
+</ul>
+</li>
+<li><a href="#mqtt-configuration">MQTT Configuration</a></li>
+<li><a href="#run-the-service">Run the Service</a></li>
+<li><a href="#home-assistant-configuration">Home Assistant Configuration</a></li>
+</ul>
+</div>
+        </nav>
+    </div>
+    <div class="span8 article-content">
 
             
-            <p>This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software <a href="https://github.com/Motion-Project/motion">Motion</a>, and publish the motion detection over the <a href="http://mqtt.org/">MQTT message bus</a> for use by <a href="https://home-assistant.io/">Home Assistant</a>, or indeed anything else that may want to use it.</p>
+            
+<p>This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software <a href="https://github.com/Motion-Project/motion">Motion</a>, and publish the motion detection over the <a href="http://mqtt.org/">MQTT message bus</a> for use by <a href="https://home-assistant.io/">Home Assistant</a>, or indeed anything else that may want to use it.</p>
 <p>Since I run my services with <a href="https://www.docker.com/">Docker</a>, it utilises a <a href="https://hub.docker.com/r/flyte/motion-mqtt/">Docker Image of my creation</a>, but the configuration details still apply, regardless of how you run Motion.</p>
-<h2>Background</h2>
+<h2 id="background">Background</h2>
 <p>I have a handful of IP cameras connected to the network in my home. They are relatively cheap, low powered, sparsely featured devices which just about handle the capture and streaming of video using Motion JPEG.</p>
 <p>Home Assistant has no problem viewing the video feed from the devices, but in order to use the video in my automations, I needed a way of detecting motion. Thankfully, there's a great, lightweight, free and open source project called <a href="https://github.com/Motion-Project/motion">Motion</a> which handles the detection of motion in video streams.</p>
 <p>The majority of the 'smart' devices in my home communicate over the MQTT message bus. This is very convenient and integrates very well with Home Assistant. I wanted to find a way to use Motion to detect motion on my IP cameras and publish the events on an MQTT topic.</p>
 <p>Most of the services running on my home server are within Docker containers. I wanted Motion to be no different so I <a href="https://hub.docker.com/r/flyte/motion-mqtt/">created a Docker Image for it</a>, specifically including an MQTT publish client.</p>
-<h2>Camera Configuration</h2>
+<h2 id="camera-configuration">Camera Configuration</h2>
 <p>All of the cameras I use serve Motion JPEG streams over HTTP. This method is not limited to this configuration, and will support any camera which is supported by Motion. This includes <a href="https://htmlpreview.github.io/?https://github.com/Motion-Project/motion/blob/master/motion_guide.html#netcam_url">network cameras</a> and also <a href="https://htmlpreview.github.io/?https://github.com/Motion-Project/motion/blob/master/motion_guide.html#videodevice">directly connected ones</a>, although you'll need to <a href="https://docs.docker.com/engine/reference/commandline/run/#add-host-device-to-container-device">pass the device through</a> to the docker container.</p>
 <p>In order to receive a Motion JPEG stream from my cameras, I use the following URL:</p>
 <div class="highlight"><pre><span></span>http://10.0.0.10/videostream.cgi?loginuse=admin&amp;loginpas=mypassword
 </pre></div>
-
-
 <p>You may be able to get the URL for your camera by viewing its web interface in your browser (Chrome in this case), right clicking on the video feed and choosing 'Copy image address'.</p>
 <p>Note that in my case, simply browsing to the above URL doesn't seem to work. The same URL does work within Home Assistant and Motion, however.</p>
-<h2>Motion Configuration</h2>
+<h2 id="motion-configuration">Motion Configuration</h2>
 <p>Motion requires the use of a configuration file, so in order to get this, use the following Docker command:</p>
 <div class="highlight"><pre><span></span>docker run -ti --rm flyte/motion-mqtt config &gt; motion.conf
 </pre></div>
-
-
 <p>If you're not using Docker, then you should be able to find this file in <code>/etc/motion</code> or <code>/usr/local/etc/motion</code>. It may be called <code>motion.conf</code> or <code>motion-dist.conf</code>.</p>
-<h3>Camera Setup</h3>
+<h3 id="camera-setup">Camera Setup</h3>
 <p>To set up Motion to connect to your IP camera, edit the <code>motion.conf</code> file and perform the following actions:</p>
 <ul>
 <li>Comment out the <code>videodevice /dev/video0</code> line</li>
@@ -108,36 +125,26 @@
 </ul>
 <div class="highlight"><pre><span></span>netcam_url http://10.0.0.10/videostream.cgi?loginuse=admin&amp;loginpas=mypassword
 </pre></div>
-
-
 <p>Note, for my cameras I use the <code>mjpeg://</code> 'protocol', <a href="https://htmlpreview.github.io/?https://github.com/Motion-Project/motion/blob/master/motion_guide.html#netcam_url">as described in the Motion guide</a>:</p>
 <div class="highlight"><pre><span></span>netcam_url mjpeg://10.0.0.10/videostream.cgi?loginuse=admin&amp;loginpas=mypassword
 </pre></div>
-
-
-<h3>Disable Picture and Video Capture</h3>
+<h3 id="disable-picture-and-video-capture">Disable Picture and Video Capture</h3>
 <p>Since we're only using Motion to detect motion and not to record the events, change the following two config values from 'on' to 'off':</p>
 <div class="highlight"><pre><span></span>output_pictures off
 ffmpeg_output_movies off
 </pre></div>
-
-
-<h3>Event Length</h3>
+<h3 id="event-length">Event Length</h3>
 <p>By default each event lasts for 60 seconds after the motion is no longer detected. This is too long for my liking, so adjust the amount of seconds with the <code>event_gap</code> configuration value:</p>
 <div class="highlight"><pre><span></span>event_gap 5
 </pre></div>
-
-
-<h2>MQTT Configuration</h2>
+<h2 id="mqtt-configuration">MQTT Configuration</h2>
 <p>Finally, in order to actually publish the events to an MQTT topic, you must set the <code>on_event_start</code> and <code>on_event_end</code> configuration values. For example:</p>
-<div class="highlight"><pre><span></span>on_event_start mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t &quot;cam/office/motion&quot; -m &quot;on&quot;
-on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t &quot;cam/office/motion&quot; -m &quot;off&quot;
+<div class="highlight"><pre><span></span>on_event_start mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t "cam/office/motion" -m "on"
+on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t "cam/office/motion" -m "off"
 </pre></div>
-
-
 <p>If you're not using my Docker image, then you should be able to get the <code>mosquitto_pub</code> tool from the <code>mosquitto-clients</code> package. <code>apt-get install mosquitto-clients</code> if you're using Ubuntu/Debian/Raspbian.</p>
 <p>Have a look at <code>mosquitto_pub --help</code> for more usage information.</p>
-<h2>Run the Service</h2>
+<h2 id="run-the-service">Run the Service</h2>
 <p>For my Docker containers, I tend to create a <code>docker</code> directory, then organise the files for each of the containers within subdirectories. For example, my three cameras are organised as such:</p>
 <div class="highlight"><pre><span></span>motion-mqtt
 ├── office
@@ -153,16 +160,12 @@ on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword
     │   └── motion.conf
     └── run.sh
 </pre></div>
-
-
 <p>Each of the <code>run.sh</code> files contains the command I use to run each container:</p>
 <div class="highlight"><pre><span></span>docker run -d <span class="se">\</span>
     --name motion-mqtt-office <span class="se">\</span>
     -v /home/flyte/docker/motion-mqtt/office/config:/motion:ro <span class="se">\</span>
     flyte/motion-mqtt
 </pre></div>
-
-
 <p>Note that the Motion configuration file is within a <code>config</code> directory which is shared within the Docker container as a volume at <code>/motion</code>. By default, the container will look for a configuration file at <code>/motion/motion.conf</code>.</p>
 <p>Once you've created a directory structure and created a <code>run.sh</code> script, make the script runnable with <code>chmod +x run.sh</code> and then execute it with <code>./run.sh</code>. This should now have created a new Docker container. You can check the logs with <code>docker logs -f motion-mqtt-office</code>.</p>
 <p>If everything's gone well, you should now be able to wave at the camera and receive log entries along the line of the following:</p>
@@ -177,28 +180,22 @@ on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword
 [1:ml1] [NTC] [ALL] motion_detected: Motion detected - starting event 3
 [1:ml1] [NTC] [ALL] mlp_actions: End of event 3
 </pre></div>
-
-
 <p>Use your favourite MQTT subscription tool (MQTT Lens or mosquitto_sub in my case) to check that you're publishing events to MQTT properly.</p>
-<h2>Home Assistant Configuration</h2>
+<h2 id="home-assistant-configuration">Home Assistant Configuration</h2>
 <p>To add the new motion sensor to Home Assistant, create a new Binary Sensor:</p>
 <div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">binary_sensor</span><span class="p p-Indicator">:</span>
   <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">name</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">Office Motion</span>
     <span class="l l-Scalar l-Scalar-Plain">platform</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">mqtt</span>
     <span class="l l-Scalar l-Scalar-Plain">state_topic</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">home/office/motion</span>
-    <span class="l l-Scalar l-Scalar-Plain">payload_on</span><span class="p p-Indicator">:</span> <span class="s">&quot;on&quot;</span>
-    <span class="l l-Scalar l-Scalar-Plain">payload_off</span><span class="p p-Indicator">:</span> <span class="s">&quot;off&quot;</span>
+    <span class="l l-Scalar l-Scalar-Plain">payload_on</span><span class="p p-Indicator">:</span> <span class="s">"on"</span>
+    <span class="l l-Scalar l-Scalar-Plain">payload_off</span><span class="p p-Indicator">:</span> <span class="s">"off"</span>
 </pre></div>
-
-
 <p>You may also want to set its <code>device_class</code> as <code>motion</code> so that the UI makes more sense:</p>
 <div class="highlight"><pre><span></span><span class="l l-Scalar l-Scalar-Plain">homeassistant</span><span class="p p-Indicator">:</span>
   <span class="l l-Scalar l-Scalar-Plain">customize</span><span class="p p-Indicator">:</span>
     <span class="l l-Scalar l-Scalar-Plain">binary_sensor.office_motion</span><span class="p p-Indicator">:</span>
       <span class="l l-Scalar l-Scalar-Plain">device_class</span><span class="p p-Indicator">:</span> <span class="l l-Scalar l-Scalar-Plain">motion</span>
 </pre></div>
-
-
 <p>This should now be enough to view the motion sensor state in Home Assistant. You may now want to set up automations using the input of the motion sensor, in which case I recommend you start with <a href="https://home-assistant.io/docs/automation/">Automating Home Assistant</a>.</p>
             
             <section>

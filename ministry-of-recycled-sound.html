@@ -74,17 +74,31 @@
 </div>
 
 <div class="row-fluid">
-        <div class="span8 offset2 article-content">
+    <div class="span2 table-of-content">
+        <nav>
+        <h4>Contents</h4>
+        <div class="toc">
+<ul>
+<li><a href="#fetch-the-database">Fetch the database</a></li>
+<li><a href="#search-for-ministry-of-sound-cds">Search for Ministry of Sound CDs</a></li>
+<li><a href="#parse-the-cd-files">Parse the CD files</a></li>
+<li><a href="#count-up-the-tracks">Count up the tracks</a></li>
+<li><a href="#the-results">The Results</a></li>
+<li><a href="#the-full-script">The full script</a></li>
+</ul>
+</div>
+        </nav>
+    </div>
+    <div class="span8 article-content">
 
             
-            <p>An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was <a href="http://youtu.be/PSYxT9GM0fQ">Darude - Sandstorm</a>. It occurred to me that all of the Ministry of Sound albums I can remember watching adverts for contained this one track. This made me wonder how many other songs kept getting put on the MoS albums repeatedly.</p>
+            
+<p>An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was <a href="http://youtu.be/PSYxT9GM0fQ">Darude - Sandstorm</a>. It occurred to me that all of the Ministry of Sound albums I can remember watching adverts for contained this one track. This made me wonder how many other songs kept getting put on the MoS albums repeatedly.</p>
 <p>What I wanted to see was a list of tracks sorted by how many times they had appeared on a Ministry of Sound album. I had a hunch that Sandstorm would be at the top.</p>
-<h2>Fetch the database</h2>
+<h2 id="fetch-the-database">Fetch the database</h2>
 <p><a href="http://www.freedb.org/">FreeDB</a> is a license-free database for use in looking up track listings for CDs. We start by <a href="http://www.freedb.org/en/download__database.10.html">downloading the whole database</a> (roughly 800MB bzipped file) and extracting its contents to the filesystem:</p>
 <div class="highlight"><pre><span></span>tar xjvf freedb-complete-20140101.tar.bz2
 </pre></div>
-
-
 <p>Producing the following file structure:</p>
 <div class="highlight"><pre><span></span>.
 ├── blues
@@ -100,58 +114,48 @@
 ├── country
 etc.
 </pre></div>
-
-
 <p>Each file (<code>000a9612</code>, <code>00073614</code> etc.) represents a single CD and they're organised into genre directories. The files contain, among other things, the track listing of the CD.</p>
-<h2>Search for Ministry of Sound CDs</h2>
+<h2 id="search-for-ministry-of-sound-cds">Search for Ministry of Sound CDs</h2>
 <p>Since there are over three million CDs listed in FreeDB, the files needed paring down a little.</p>
-<div class="highlight"><pre><span></span>grep -ir <span class="s2">&quot;ministry of sound&quot;</span> . <span class="p">|</span> perl -n -e <span class="s1">&#39;/(^.+?):/ &amp;&amp; print $1.&quot;\n&quot;&#39;</span> <span class="p">|</span> uniq &gt; ministry.txt
+<div class="highlight"><pre><span></span>grep -ir <span class="s2">"ministry of sound"</span> . <span class="p">|</span> perl -n -e <span class="s1">'/(^.+?):/ &amp;&amp; print $1."\n"'</span> <span class="p">|</span> uniq &gt; ministry.txt
 </pre></div>
-
-
 <p>This grep command searches recursively and case-insensitively for the exact string "ministry of sound". It will normally output something like</p>
 <div class="highlight"><pre><span></span>./blues/4512b117:DTITLE=Various Artists / Ministry of Sound: Sessions Ten
 </pre></div>
-
-
 <p>but all we care about is the file name (4512b117) so we use perl regex to capture and print it with a newline appended. This will produce duplicate file names, so we pipe it to uniq and finally output to a file called ministry.txt. This command took a long time to complete, but would have been a whole lot slower had we have done it using Python.</p>
 <p>Now we have a list of Ministry of Sound CDs, we copy the files into their own directory since we don't care what genre they're listed as.</p>
 <div class="highlight"><pre><span></span>mkdir ministry
 cat ministry.txt <span class="p">|</span> xargs -I <span class="o">{}</span> cp <span class="o">{}</span> ministry/
 </pre></div>
-
-
 <p>We now have all of the CD files in one directory so we can move on to using Python to figure out the answer to our question.</p>
-<h2>Parse the CD files</h2>
+<h2 id="parse-the-cd-files">Parse the CD files</h2>
 <p>The first issue we need to solve is that some of the track names are too long to fit on a single line in the CD file.</p>
 <div class="highlight"><pre><span></span>TTITLE13=David Morales and Larent Garnier / Ministry of Sound Dance Pa
 TTITLE13=rty Fragment
 </pre></div>
-
-
 <p>We create a function which parses each line of the CD file and creates a dictionary of the keys and values. If a key is already in the dictionary, it will concatenate the value onto it.</p>
 <div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">parse_cd</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="p">{}):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">"""</span>
 <span class="sd">    Takes the path to a FreeDB CD file and parses all</span>
 <span class="sd">    key/value pairs into a dictionary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
             <span class="c1"># Remove newline chars</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
             <span class="c1"># Ignore any comments or lines without an equals in</span>
-            <span class="k">if</span> <span class="s2">&quot;=&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">"="</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
                 <span class="k">continue</span>
 
             <span class="c1"># Extract the keys and values, forcing the values to be</span>
             <span class="c1"># lower case</span>
-            <span class="n">eq_index</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+            <span class="n">eq_index</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"="</span><span class="p">)</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="n">eq_index</span><span class="p">]</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">eq_index</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
             <span class="c1"># Take a dictionary of strings to search and replace eg.</span>
-            <span class="c1"># {&quot; (original mix)&quot;: &quot;&quot;, &quot; - &quot;: &quot; / &quot;}</span>
+            <span class="c1"># {" (original mix)": "", " - ": " / "}</span>
             <span class="k">for</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">replacements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
 
@@ -164,29 +168,25 @@ TTITLE13=rty Fragment
                 <span class="n">lines</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
     <span class="k">return</span> <span class="n">lines</span>
 </pre></div>
-
-
 <p>Within this function we also replace certain characters and strings. Some of the delimiters are inconsistent in FreeDB, so we make an effort to replace them all with <code>/</code>. We also remove any occurrences of <code>(original mix)</code> since these are indeed the original tracks.</p>
 <div class="highlight"><pre><span></span><span class="n">REPLACEMENTS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot; (original mix)&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="s2">&quot; - &quot;</span><span class="p">:</span> <span class="s2">&quot; / &quot;</span><span class="p">,</span>
-    <span class="s2">&quot;-&quot;</span> <span class="p">:</span> <span class="s2">&quot; / &quot;</span><span class="p">,</span>
-    <span class="s2">&quot; / &quot;</span><span class="p">:</span> <span class="s2">&quot;/&quot;</span>
+    <span class="s2">" (original mix)"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="s2">" - "</span><span class="p">:</span> <span class="s2">" / "</span><span class="p">,</span>
+    <span class="s2">"-"</span> <span class="p">:</span> <span class="s2">" / "</span><span class="p">,</span>
+    <span class="s2">" / "</span><span class="p">:</span> <span class="s2">"/"</span>
 <span class="p">}</span>
 </pre></div>
-
-
 <p>We create a <code>REPLACEMENTS</code> constant to put at the top of our script and pass it to the <code>parse_cd</code> function at runtime.</p>
-<h2>Count up the tracks</h2>
+<h2 id="count-up-the-tracks">Count up the tracks</h2>
 <p>We now have all the tools we need to count up the tracks.</p>
-<div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<div class="highlight"><pre><span></span><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">tracks_count</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">DB_DIR</span><span class="p">):</span>
         <span class="c1"># Parse the CD</span>
         <span class="n">cd</span> <span class="o">=</span> <span class="n">parse_cd</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DB_DIR</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">REPLACEMENTS</span><span class="p">)</span>
         <span class="c1"># Extract the tracks</span>
-        <span class="n">tracks</span> <span class="o">=</span> <span class="p">[</span><span class="n">cd</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cd</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;TTITLE&quot;</span><span class="p">)]</span>
+        <span class="n">tracks</span> <span class="o">=</span> <span class="p">[</span><span class="n">cd</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cd</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"TTITLE"</span><span class="p">)]</span>
 
         <span class="k">for</span> <span class="n">track</span> <span class="ow">in</span> <span class="n">tracks</span><span class="p">:</span>
             <span class="c1"># If the track has appeared already, increment its counter</span>
@@ -198,12 +198,10 @@ TTITLE13=rty Fragment
 
     <span class="c1"># Finally, sort the tracks_count dictionary by amount of appearances</span>
     <span class="k">for</span> <span class="n">track_count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">tracks_count</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-        <span class="k">print</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">track_count</span>
+        <span class="k">print</span> <span class="s2">"</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="n">track_count</span>
 </pre></div>
-
-
 <p>We create a <code>tracks_count</code> dictionary to store the amount of appearances of each track. Next, we list the directory which contains all of the CD files and parse the files. We grab the tracks (the key always starts with <code>TTITLE</code>)  and either increment an existing entry in tracks_count or set it to <code>1</code> if it is its first appearance on a CD. Finally, we sort the <code>tracks_count</code> dictionary incrementally so that the most common track appears last on our console output and then print the whole lot.</p>
-<h2>The Results</h2>
+<h2 id="the-results">The Results</h2>
 <div class="highlight"><pre><span></span>~/workspace/ministry $ python ministry.py | tail -n 30
 iio/rapture: 9
 atb/9pm (till i come): 9
@@ -236,48 +234,46 @@ mylo/drop the pressure: 16
 roger sanchez/another chance: 21
 darude/sandstorm: 25
 </pre></div>
-
-
 <p>The top 30 most common tracks used on Ministry of Sound CD releases. Look who's sitting pretty with 25 appearances!</p>
 <p>I must admit, I thought these tracks would show up more regularly, considering the amount of CD files we were searching through (1,229), but I'm happy that at least my prediction was correct. Next time you see an advert for a MoS album keep an ear out for <a href="http://youtu.be/PSYxT9GM0fQ">Darude - Sandstorm</a>!</p>
-<h2>The full script</h2>
+<h2 id="the-full-script">The full script</h2>
 <div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">json</span>
 
 
-<span class="n">DB_DIR</span> <span class="o">=</span> <span class="s2">&quot;ministry&quot;</span>
+<span class="n">DB_DIR</span> <span class="o">=</span> <span class="s2">"ministry"</span>
 <span class="n">REPLACEMENTS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot; (original mix)&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
-    <span class="s2">&quot; - &quot;</span><span class="p">:</span> <span class="s2">&quot; / &quot;</span><span class="p">,</span>
-    <span class="s2">&quot;-&quot;</span> <span class="p">:</span> <span class="s2">&quot; / &quot;</span><span class="p">,</span>
-    <span class="s2">&quot; / &quot;</span><span class="p">:</span> <span class="s2">&quot;/&quot;</span>
+    <span class="s2">" (original mix)"</span><span class="p">:</span> <span class="s2">""</span><span class="p">,</span>
+    <span class="s2">" - "</span><span class="p">:</span> <span class="s2">" / "</span><span class="p">,</span>
+    <span class="s2">"-"</span> <span class="p">:</span> <span class="s2">" / "</span><span class="p">,</span>
+    <span class="s2">" / "</span><span class="p">:</span> <span class="s2">"/"</span>
 <span class="p">}</span>
 
 
 <span class="k">def</span> <span class="nf">parse_cd</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">replacements</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+    <span class="sd">"""</span>
 <span class="sd">    Takes the path to a FreeDB CD file and parses all</span>
 <span class="sd">    key/value pairs into a dictionary.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">replacements</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
         <span class="n">replacements</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="n">lines</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">readlines</span><span class="p">():</span>
             <span class="c1"># Remove newline chars</span>
             <span class="n">line</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span>
             <span class="c1"># Ignore any comments or lines without an equals in</span>
-            <span class="k">if</span> <span class="s2">&quot;=&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">"="</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"#"</span><span class="p">):</span>
                 <span class="k">continue</span>
 
             <span class="c1"># Extract the keys and values, forcing the values to be</span>
             <span class="c1"># lower case</span>
-            <span class="n">eq_index</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="p">)</span>
+            <span class="n">eq_index</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">"="</span><span class="p">)</span>
             <span class="n">key</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="n">eq_index</span><span class="p">]</span>
             <span class="n">value</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">eq_index</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
 
             <span class="c1"># Take a dictionary of strings to search and replace eg.</span>
-            <span class="c1"># {&quot; (original mix)&quot;: &quot;&quot;, &quot; - &quot;: &quot; / &quot;}</span>
+            <span class="c1"># {" (original mix)": "", " - ": " / "}</span>
             <span class="k">for</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="n">replacements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
                 <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
 
@@ -291,7 +287,7 @@ darude/sandstorm: 25
     <span class="k">return</span> <span class="n">lines</span>
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">tracks_count</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">DB_DIR</span><span class="p">):</span>
@@ -299,7 +295,7 @@ darude/sandstorm: 25
         <span class="n">cd</span> <span class="o">=</span> <span class="n">parse_cd</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">DB_DIR</span><span class="p">,</span> <span class="n">filename</span><span class="p">),</span> <span class="n">REPLACEMENTS</span><span class="p">)</span>
         <span class="c1"># Extract the tracks</span>
         <span class="n">tracks</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">cd</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cd</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;TTITLE&quot;</span><span class="p">)]</span>
+            <span class="n">cd</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">cd</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"TTITLE"</span><span class="p">)]</span>
 
         <span class="k">for</span> <span class="n">track</span> <span class="ow">in</span> <span class="n">tracks</span><span class="p">:</span>
             <span class="c1"># If the track has appeared already, increment its counter</span>
@@ -313,7 +309,7 @@ darude/sandstorm: 25
     <span class="c1"># amount of appearances</span>
     <span class="k">for</span> <span class="n">track_count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span>
             <span class="n">tracks_count</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-        <span class="k">print</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">track_count</span>
+        <span class="k">print</span> <span class="s2">"</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="n">track_count</span>
 </pre></div>
             
             <section>

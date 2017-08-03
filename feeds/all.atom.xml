@@ -1,28 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Beta not Best</title><link href="https://flyte.github.io/" rel="alternate"></link><link href="https://flyte.github.io/feeds/all.atom.xml" rel="self"></link><id>https://flyte.github.io/</id><updated>2017-08-02T00:00:00+01:00</updated><entry><title>MQTT Camera Based Motion Tracking for Home Assistant</title><link href="https://flyte.github.io/mqtt-camera-based-motion-tracking-for-home-assistant.html" rel="alternate"></link><published>2017-08-02T00:00:00+01:00</published><updated>2017-08-02T00:00:00+01:00</updated><author><name>Ellis Percival</name></author><id>tag:flyte.github.io,2017-08-02:/mqtt-camera-based-motion-tracking-for-home-assistant.html</id><summary type="html">&lt;p&gt;This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software &lt;a href="https://github.com/Motion-Project/motion"&gt;Motion&lt;/a&gt;, and publish the motion detection over the &lt;a href="http://mqtt.org/"&gt;MQTT message bus&lt;/a&gt; for use by &lt;a href="https://home-assistant.io/"&gt;Home Assistant&lt;/a&gt;, or indeed anything else …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software &lt;a href="https://github.com/Motion-Project/motion"&gt;Motion&lt;/a&gt;, and publish the motion detection over the &lt;a href="http://mqtt.org/"&gt;MQTT message bus&lt;/a&gt; for use by &lt;a href="https://home-assistant.io/"&gt;Home Assistant&lt;/a&gt;, or indeed anything else that may want to use it.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Beta not Best</title><link href="https://flyte.github.io/" rel="alternate"></link><link href="https://flyte.github.io/feeds/all.atom.xml" rel="self"></link><id>https://flyte.github.io/</id><updated>2017-08-02T00:00:00+01:00</updated><entry><title>MQTT Camera Based Motion Tracking for Home Assistant</title><link href="https://flyte.github.io/mqtt-camera-based-motion-tracking-for-home-assistant.html" rel="alternate"></link><published>2017-08-02T00:00:00+01:00</published><updated>2017-08-02T00:00:00+01:00</updated><author><name>Ellis Percival</name></author><id>tag:flyte.github.io,2017-08-02:/mqtt-camera-based-motion-tracking-for-home-assistant.html</id><summary type="html">
+&lt;p&gt;This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software &lt;a href="https://github.com/Motion-Project/motion"&gt;Motion&lt;/a&gt;, and publish the motion detection over the &lt;a href="http://mqtt.org/"&gt;MQTT message bus&lt;/a&gt; for use by &lt;a href="https://home-assistant.io/"&gt;Home Assistant&lt;/a&gt;, or indeed anything else …&lt;/p&gt;</summary><content type="html">
+&lt;p&gt;This blog post will demonstrate the process I use to add motion tracking to any IP camera (and also perhaps directly connected ones) using the free and open source software &lt;a href="https://github.com/Motion-Project/motion"&gt;Motion&lt;/a&gt;, and publish the motion detection over the &lt;a href="http://mqtt.org/"&gt;MQTT message bus&lt;/a&gt; for use by &lt;a href="https://home-assistant.io/"&gt;Home Assistant&lt;/a&gt;, or indeed anything else that may want to use it.&lt;/p&gt;
 &lt;p&gt;Since I run my services with &lt;a href="https://www.docker.com/"&gt;Docker&lt;/a&gt;, it utilises a &lt;a href="https://hub.docker.com/r/flyte/motion-mqtt/"&gt;Docker Image of my creation&lt;/a&gt;, but the configuration details still apply, regardless of how you run Motion.&lt;/p&gt;
-&lt;h2&gt;Background&lt;/h2&gt;
+&lt;h2 id="background"&gt;Background&lt;/h2&gt;
 &lt;p&gt;I have a handful of IP cameras connected to the network in my home. They are relatively cheap, low powered, sparsely featured devices which just about handle the capture and streaming of video using Motion JPEG.&lt;/p&gt;
 &lt;p&gt;Home Assistant has no problem viewing the video feed from the devices, but in order to use the video in my automations, I needed a way of detecting motion. Thankfully, there's a great, lightweight, free and open source project called &lt;a href="https://github.com/Motion-Project/motion"&gt;Motion&lt;/a&gt; which handles the detection of motion in video streams.&lt;/p&gt;
 &lt;p&gt;The majority of the 'smart' devices in my home communicate over the MQTT message bus. This is very convenient and integrates very well with Home Assistant. I wanted to find a way to use Motion to detect motion on my IP cameras and publish the events on an MQTT topic.&lt;/p&gt;
 &lt;p&gt;Most of the services running on my home server are within Docker containers. I wanted Motion to be no different so I &lt;a href="https://hub.docker.com/r/flyte/motion-mqtt/"&gt;created a Docker Image for it&lt;/a&gt;, specifically including an MQTT publish client.&lt;/p&gt;
-&lt;h2&gt;Camera Configuration&lt;/h2&gt;
+&lt;h2 id="camera-configuration"&gt;Camera Configuration&lt;/h2&gt;
 &lt;p&gt;All of the cameras I use serve Motion JPEG streams over HTTP. This method is not limited to this configuration, and will support any camera which is supported by Motion. This includes &lt;a href="https://htmlpreview.github.io/?https://github.com/Motion-Project/motion/blob/master/motion_guide.html#netcam_url"&gt;network cameras&lt;/a&gt; and also &lt;a href="https://htmlpreview.github.io/?https://github.com/Motion-Project/motion/blob/master/motion_guide.html#videodevice"&gt;directly connected ones&lt;/a&gt;, although you'll need to &lt;a href="https://docs.docker.com/engine/reference/commandline/run/#add-host-device-to-container-device"&gt;pass the device through&lt;/a&gt; to the docker container.&lt;/p&gt;
 &lt;p&gt;In order to receive a Motion JPEG stream from my cameras, I use the following URL:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;http://10.0.0.10/videostream.cgi?loginuse=admin&amp;amp;loginpas=mypassword
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;You may be able to get the URL for your camera by viewing its web interface in your browser (Chrome in this case), right clicking on the video feed and choosing 'Copy image address'.&lt;/p&gt;
 &lt;p&gt;Note that in my case, simply browsing to the above URL doesn't seem to work. The same URL does work within Home Assistant and Motion, however.&lt;/p&gt;
-&lt;h2&gt;Motion Configuration&lt;/h2&gt;
+&lt;h2 id="motion-configuration"&gt;Motion Configuration&lt;/h2&gt;
 &lt;p&gt;Motion requires the use of a configuration file, so in order to get this, use the following Docker command:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker run -ti --rm flyte/motion-mqtt config &amp;gt; motion.conf
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;If you're not using Docker, then you should be able to find this file in &lt;code&gt;/etc/motion&lt;/code&gt; or &lt;code&gt;/usr/local/etc/motion&lt;/code&gt;. It may be called &lt;code&gt;motion.conf&lt;/code&gt; or &lt;code&gt;motion-dist.conf&lt;/code&gt;.&lt;/p&gt;
-&lt;h3&gt;Camera Setup&lt;/h3&gt;
+&lt;h3 id="camera-setup"&gt;Camera Setup&lt;/h3&gt;
 &lt;p&gt;To set up Motion to connect to your IP camera, edit the &lt;code&gt;motion.conf&lt;/code&gt; file and perform the following actions:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;Comment out the &lt;code&gt;videodevice /dev/video0&lt;/code&gt; line&lt;/li&gt;
@@ -30,36 +28,26 @@
 &lt;/ul&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;netcam_url http://10.0.0.10/videostream.cgi?loginuse=admin&amp;amp;loginpas=mypassword
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;Note, for my cameras I use the &lt;code&gt;mjpeg://&lt;/code&gt; 'protocol', &lt;a href="https://htmlpreview.github.io/?https://github.com/Motion-Project/motion/blob/master/motion_guide.html#netcam_url"&gt;as described in the Motion guide&lt;/a&gt;:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;netcam_url mjpeg://10.0.0.10/videostream.cgi?loginuse=admin&amp;amp;loginpas=mypassword
 &lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h3&gt;Disable Picture and Video Capture&lt;/h3&gt;
+&lt;h3 id="disable-picture-and-video-capture"&gt;Disable Picture and Video Capture&lt;/h3&gt;
 &lt;p&gt;Since we're only using Motion to detect motion and not to record the events, change the following two config values from 'on' to 'off':&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;output_pictures off
 ffmpeg_output_movies off
 &lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h3&gt;Event Length&lt;/h3&gt;
+&lt;h3 id="event-length"&gt;Event Length&lt;/h3&gt;
 &lt;p&gt;By default each event lasts for 60 seconds after the motion is no longer detected. This is too long for my liking, so adjust the amount of seconds with the &lt;code&gt;event_gap&lt;/code&gt; configuration value:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;event_gap 5
 &lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;h2&gt;MQTT Configuration&lt;/h2&gt;
+&lt;h2 id="mqtt-configuration"&gt;MQTT Configuration&lt;/h2&gt;
 &lt;p&gt;Finally, in order to actually publish the events to an MQTT topic, you must set the &lt;code&gt;on_event_start&lt;/code&gt; and &lt;code&gt;on_event_end&lt;/code&gt; configuration values. For example:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;on_event_start mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t &amp;quot;cam/office/motion&amp;quot; -m &amp;quot;on&amp;quot;
-on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t &amp;quot;cam/office/motion&amp;quot; -m &amp;quot;off&amp;quot;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;on_event_start mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t "cam/office/motion" -m "on"
+on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword -t "cam/office/motion" -m "off"
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;If you're not using my Docker image, then you should be able to get the &lt;code&gt;mosquitto_pub&lt;/code&gt; tool from the &lt;code&gt;mosquitto-clients&lt;/code&gt; package. &lt;code&gt;apt-get install mosquitto-clients&lt;/code&gt; if you're using Ubuntu/Debian/Raspbian.&lt;/p&gt;
 &lt;p&gt;Have a look at &lt;code&gt;mosquitto_pub --help&lt;/code&gt; for more usage information.&lt;/p&gt;
-&lt;h2&gt;Run the Service&lt;/h2&gt;
+&lt;h2 id="run-the-service"&gt;Run the Service&lt;/h2&gt;
 &lt;p&gt;For my Docker containers, I tend to create a &lt;code&gt;docker&lt;/code&gt; directory, then organise the files for each of the containers within subdirectories. For example, my three cameras are organised as such:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;motion-mqtt
 ├── office
@@ -75,16 +63,12 @@ on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword
     │   └── motion.conf
     └── run.sh
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;Each of the &lt;code&gt;run.sh&lt;/code&gt; files contains the command I use to run each container:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;docker run -d &lt;span class="se"&gt;\&lt;/span&gt;
     --name motion-mqtt-office &lt;span class="se"&gt;\&lt;/span&gt;
     -v /home/flyte/docker/motion-mqtt/office/config:/motion:ro &lt;span class="se"&gt;\&lt;/span&gt;
     flyte/motion-mqtt
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;Note that the Motion configuration file is within a &lt;code&gt;config&lt;/code&gt; directory which is shared within the Docker container as a volume at &lt;code&gt;/motion&lt;/code&gt;. By default, the container will look for a configuration file at &lt;code&gt;/motion/motion.conf&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;Once you've created a directory structure and created a &lt;code&gt;run.sh&lt;/code&gt; script, make the script runnable with &lt;code&gt;chmod +x run.sh&lt;/code&gt; and then execute it with &lt;code&gt;./run.sh&lt;/code&gt;. This should now have created a new Docker container. You can check the logs with &lt;code&gt;docker logs -f motion-mqtt-office&lt;/code&gt;.&lt;/p&gt;
 &lt;p&gt;If everything's gone well, you should now be able to wave at the camera and receive log entries along the line of the following:&lt;/p&gt;
@@ -99,36 +83,30 @@ on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword
 [1:ml1] [NTC] [ALL] motion_detected: Motion detected - starting event 3
 [1:ml1] [NTC] [ALL] mlp_actions: End of event 3
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;Use your favourite MQTT subscription tool (MQTT Lens or mosquitto_sub in my case) to check that you're publishing events to MQTT properly.&lt;/p&gt;
-&lt;h2&gt;Home Assistant Configuration&lt;/h2&gt;
+&lt;h2 id="home-assistant-configuration"&gt;Home Assistant Configuration&lt;/h2&gt;
 &lt;p&gt;To add the new motion sensor to Home Assistant, create a new Binary Sensor:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="l l-Scalar l-Scalar-Plain"&gt;binary_sensor&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt;
   &lt;span class="p p-Indicator"&gt;-&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;name&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;Office Motion&lt;/span&gt;
     &lt;span class="l l-Scalar l-Scalar-Plain"&gt;platform&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;mqtt&lt;/span&gt;
     &lt;span class="l l-Scalar l-Scalar-Plain"&gt;state_topic&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;home/office/motion&lt;/span&gt;
-    &lt;span class="l l-Scalar l-Scalar-Plain"&gt;payload_on&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;on&amp;quot;&lt;/span&gt;
-    &lt;span class="l l-Scalar l-Scalar-Plain"&gt;payload_off&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;off&amp;quot;&lt;/span&gt;
+    &lt;span class="l l-Scalar l-Scalar-Plain"&gt;payload_on&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt; &lt;span class="s"&gt;"on"&lt;/span&gt;
+    &lt;span class="l l-Scalar l-Scalar-Plain"&gt;payload_off&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt; &lt;span class="s"&gt;"off"&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;You may also want to set its &lt;code&gt;device_class&lt;/code&gt; as &lt;code&gt;motion&lt;/code&gt; so that the UI makes more sense:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="l l-Scalar l-Scalar-Plain"&gt;homeassistant&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt;
   &lt;span class="l l-Scalar l-Scalar-Plain"&gt;customize&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt;
     &lt;span class="l l-Scalar l-Scalar-Plain"&gt;binary_sensor.office_motion&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt;
       &lt;span class="l l-Scalar l-Scalar-Plain"&gt;device_class&lt;/span&gt;&lt;span class="p p-Indicator"&gt;:&lt;/span&gt; &lt;span class="l l-Scalar l-Scalar-Plain"&gt;motion&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-
-
-&lt;p&gt;This should now be enough to view the motion sensor state in Home Assistant. You may now want to set up automations using the input of the motion sensor, in which case I recommend you start with &lt;a href="https://home-assistant.io/docs/automation/"&gt;Automating Home Assistant&lt;/a&gt;.&lt;/p&gt;</content><category term="home-assistant"></category><category term="mqtt"></category><category term="motion"></category><category term="camera"></category><category term="cctv"></category><category term="docker"></category><category term="home-automation"></category></entry><entry><title>Ministry of Recycled Sound</title><link href="https://flyte.github.io/ministry-of-recycled-sound.html" rel="alternate"></link><published>2014-01-04T00:00:00+00:00</published><updated>2014-01-04T00:00:00+00:00</updated><author><name>Ellis Percival</name></author><id>tag:flyte.github.io,2014-01-04:/ministry-of-recycled-sound.html</id><summary type="html">&lt;p&gt;An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was &lt;a href="http://youtu.be/PSYxT9GM0fQ"&gt;Darude - Sandstorm&lt;/a&gt;. It occurred to me that all of the Ministry of Sound albums I can …&lt;/p&gt;</summary><content type="html">&lt;p&gt;An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was &lt;a href="http://youtu.be/PSYxT9GM0fQ"&gt;Darude - Sandstorm&lt;/a&gt;. It occurred to me that all of the Ministry of Sound albums I can remember watching adverts for contained this one track. This made me wonder how many other songs kept getting put on the MoS albums repeatedly.&lt;/p&gt;
+&lt;p&gt;This should now be enough to view the motion sensor state in Home Assistant. You may now want to set up automations using the input of the motion sensor, in which case I recommend you start with &lt;a href="https://home-assistant.io/docs/automation/"&gt;Automating Home Assistant&lt;/a&gt;.&lt;/p&gt;</content><category term="home-assistant"></category><category term="mqtt"></category><category term="motion"></category><category term="camera"></category><category term="cctv"></category><category term="docker"></category><category term="home-automation"></category></entry><entry><title>Ministry of Recycled Sound</title><link href="https://flyte.github.io/ministry-of-recycled-sound.html" rel="alternate"></link><published>2014-01-04T00:00:00+00:00</published><updated>2014-01-04T00:00:00+00:00</updated><author><name>Ellis Percival</name></author><id>tag:flyte.github.io,2014-01-04:/ministry-of-recycled-sound.html</id><summary type="html">
+&lt;p&gt;An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was &lt;a href="http://youtu.be/PSYxT9GM0fQ"&gt;Darude - Sandstorm&lt;/a&gt;. It occurred to me that all of the Ministry of Sound albums I can …&lt;/p&gt;</summary><content type="html">
+&lt;p&gt;An advert for the latest Ministry of Sound album came on TV the other day. As usual, they played samples of some of the tunes you'll get on the album - one of which was &lt;a href="http://youtu.be/PSYxT9GM0fQ"&gt;Darude - Sandstorm&lt;/a&gt;. It occurred to me that all of the Ministry of Sound albums I can remember watching adverts for contained this one track. This made me wonder how many other songs kept getting put on the MoS albums repeatedly.&lt;/p&gt;
 &lt;p&gt;What I wanted to see was a list of tracks sorted by how many times they had appeared on a Ministry of Sound album. I had a hunch that Sandstorm would be at the top.&lt;/p&gt;
-&lt;h2&gt;Fetch the database&lt;/h2&gt;
+&lt;h2 id="fetch-the-database"&gt;Fetch the database&lt;/h2&gt;
 &lt;p&gt;&lt;a href="http://www.freedb.org/"&gt;FreeDB&lt;/a&gt; is a license-free database for use in looking up track listings for CDs. We start by &lt;a href="http://www.freedb.org/en/download__database.10.html"&gt;downloading the whole database&lt;/a&gt; (roughly 800MB bzipped file) and extracting its contents to the filesystem:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;tar xjvf freedb-complete-20140101.tar.bz2
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;Producing the following file structure:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;.
 ├── blues
@@ -144,58 +122,48 @@ on_event_end mosquitto_pub -h test.mosquitto.org -u yourusername -P yourpassword
 ├── country
 etc.
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;Each file (&lt;code&gt;000a9612&lt;/code&gt;, &lt;code&gt;00073614&lt;/code&gt; etc.) represents a single CD and they're organised into genre directories. The files contain, among other things, the track listing of the CD.&lt;/p&gt;
-&lt;h2&gt;Search for Ministry of Sound CDs&lt;/h2&gt;
+&lt;h2 id="search-for-ministry-of-sound-cds"&gt;Search for Ministry of Sound CDs&lt;/h2&gt;
 &lt;p&gt;Since there are over three million CDs listed in FreeDB, the files needed paring down a little.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;grep -ir &lt;span class="s2"&gt;&amp;quot;ministry of sound&amp;quot;&lt;/span&gt; . &lt;span class="p"&gt;|&lt;/span&gt; perl -n -e &lt;span class="s1"&gt;&amp;#39;/(^.+?):/ &amp;amp;&amp;amp; print $1.&amp;quot;\n&amp;quot;&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; uniq &amp;gt; ministry.txt
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;grep -ir &lt;span class="s2"&gt;"ministry of sound"&lt;/span&gt; . &lt;span class="p"&gt;|&lt;/span&gt; perl -n -e &lt;span class="s1"&gt;'/(^.+?):/ &amp;amp;&amp;amp; print $1."\n"'&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; uniq &amp;gt; ministry.txt
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;This grep command searches recursively and case-insensitively for the exact string "ministry of sound". It will normally output something like&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;./blues/4512b117:DTITLE=Various Artists / Ministry of Sound: Sessions Ten
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;but all we care about is the file name (4512b117) so we use perl regex to capture and print it with a newline appended. This will produce duplicate file names, so we pipe it to uniq and finally output to a file called ministry.txt. This command took a long time to complete, but would have been a whole lot slower had we have done it using Python.&lt;/p&gt;
 &lt;p&gt;Now we have a list of Ministry of Sound CDs, we copy the files into their own directory since we don't care what genre they're listed as.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mkdir ministry
 cat ministry.txt &lt;span class="p"&gt;|&lt;/span&gt; xargs -I &lt;span class="o"&gt;{}&lt;/span&gt; cp &lt;span class="o"&gt;{}&lt;/span&gt; ministry/
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;We now have all of the CD files in one directory so we can move on to using Python to figure out the answer to our question.&lt;/p&gt;
-&lt;h2&gt;Parse the CD files&lt;/h2&gt;
+&lt;h2 id="parse-the-cd-files"&gt;Parse the CD files&lt;/h2&gt;
 &lt;p&gt;The first issue we need to solve is that some of the track names are too long to fit on a single line in the CD file.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;TTITLE13=David Morales and Larent Garnier / Ministry of Sound Dance Pa
 TTITLE13=rty Fragment
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;We create a function which parses each line of the CD file and creates a dictionary of the keys and values. If a key is already in the dictionary, it will concatenate the value onto it.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;parse_cd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;replacements&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{}):&lt;/span&gt;
-    &lt;span class="sd"&gt;&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class="sd"&gt;"""&lt;/span&gt;
 &lt;span class="sd"&gt;    Takes the path to a FreeDB CD file and parses all&lt;/span&gt;
 &lt;span class="sd"&gt;    key/value pairs into a dictionary.&lt;/span&gt;
-&lt;span class="sd"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
     &lt;span class="n"&gt;lines&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
-    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;r&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"r"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;readlines&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
             &lt;span class="c1"&gt;# Remove newline chars&lt;/span&gt;
             &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rstrip&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
             &lt;span class="c1"&gt;# Ignore any comments or lines without an equals in&lt;/span&gt;
-            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;=&amp;quot;&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;or&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;startswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;#&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s2"&gt;"="&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;or&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;startswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"#"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
                 &lt;span class="k"&gt;continue&lt;/span&gt;
 
             &lt;span class="c1"&gt;# Extract the keys and values, forcing the values to be&lt;/span&gt;
             &lt;span class="c1"&gt;# lower case&lt;/span&gt;
-            &lt;span class="n"&gt;eq_index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;=&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="n"&gt;eq_index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"="&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
             &lt;span class="n"&gt;key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="n"&gt;eq_index&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
             &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;eq_index&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 
             &lt;span class="c1"&gt;# Take a dictionary of strings to search and replace eg.&lt;/span&gt;
-            &lt;span class="c1"&gt;# {&amp;quot; (original mix)&amp;quot;: &amp;quot;&amp;quot;, &amp;quot; - &amp;quot;: &amp;quot; / &amp;quot;}&lt;/span&gt;
+            &lt;span class="c1"&gt;# {" (original mix)": "", " - ": " / "}&lt;/span&gt;
             &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;old&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;replacements&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
                 &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;replace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;old&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
@@ -208,29 +176,25 @@ TTITLE13=rty Fragment
                 &lt;span class="n"&gt;lines&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;lines&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;Within this function we also replace certain characters and strings. Some of the delimiters are inconsistent in FreeDB, so we make an effort to replace them all with &lt;code&gt;/&lt;/code&gt;. We also remove any occurrences of &lt;code&gt;(original mix)&lt;/code&gt; since these are indeed the original tracks.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;REPLACEMENTS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="s2"&gt;&amp;quot; (original mix)&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="s2"&gt;&amp;quot; - &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; / &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="s2"&gt;&amp;quot;-&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; / &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="s2"&gt;&amp;quot; / &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;/&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;" (original mix)"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;""&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;" - "&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;" / "&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;"-"&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;" / "&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;" / "&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"/"&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;We create a &lt;code&gt;REPLACEMENTS&lt;/code&gt; constant to put at the top of our script and pass it to the &lt;code&gt;parse_cd&lt;/code&gt; function at runtime.&lt;/p&gt;
-&lt;h2&gt;Count up the tracks&lt;/h2&gt;
+&lt;h2 id="count-up-the-tracks"&gt;Count up the tracks&lt;/h2&gt;
 &lt;p&gt;We now have all the tools we need to count up the tracks.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;"__main__"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;tracks_count&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
 
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;filename&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;listdir&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DB_DIR&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
         &lt;span class="c1"&gt;# Parse the CD&lt;/span&gt;
         &lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;parse_cd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DB_DIR&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;REPLACEMENTS&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="c1"&gt;# Extract the tracks&lt;/span&gt;
-        &lt;span class="n"&gt;tracks&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;keys&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;startswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;TTITLE&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+        &lt;span class="n"&gt;tracks&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;keys&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;startswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"TTITLE"&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
 
         &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;track&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;tracks&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
             &lt;span class="c1"&gt;# If the track has appeared already, increment its counter&lt;/span&gt;
@@ -242,12 +206,10 @@ TTITLE13=rty Fragment
 
     &lt;span class="c1"&gt;# Finally, sort the tracks_count dictionary by amount of appearances&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;track_count&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;tracks_count&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]):&lt;/span&gt;
-        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;: &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;track_count&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;: &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;track_count&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;We create a &lt;code&gt;tracks_count&lt;/code&gt; dictionary to store the amount of appearances of each track. Next, we list the directory which contains all of the CD files and parse the files. We grab the tracks (the key always starts with &lt;code&gt;TTITLE&lt;/code&gt;)  and either increment an existing entry in tracks_count or set it to &lt;code&gt;1&lt;/code&gt; if it is its first appearance on a CD. Finally, we sort the &lt;code&gt;tracks_count&lt;/code&gt; dictionary incrementally so that the most common track appears last on our console output and then print the whole lot.&lt;/p&gt;
-&lt;h2&gt;The Results&lt;/h2&gt;
+&lt;h2 id="the-results"&gt;The Results&lt;/h2&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;~/workspace/ministry $ python ministry.py | tail -n 30
 iio/rapture: 9
 atb/9pm (till i come): 9
@@ -280,48 +242,46 @@ mylo/drop the pressure: 16
 roger sanchez/another chance: 21
 darude/sandstorm: 25
 &lt;/pre&gt;&lt;/div&gt;
-
-
 &lt;p&gt;The top 30 most common tracks used on Ministry of Sound CD releases. Look who's sitting pretty with 25 appearances!&lt;/p&gt;
 &lt;p&gt;I must admit, I thought these tracks would show up more regularly, considering the amount of CD files we were searching through (1,229), but I'm happy that at least my prediction was correct. Next time you see an advert for a MoS album keep an ear out for &lt;a href="http://youtu.be/PSYxT9GM0fQ"&gt;Darude - Sandstorm&lt;/a&gt;!&lt;/p&gt;
-&lt;h2&gt;The full script&lt;/h2&gt;
+&lt;h2 id="the-full-script"&gt;The full script&lt;/h2&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;os&lt;/span&gt;
 &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="nn"&gt;json&lt;/span&gt;
 
 
-&lt;span class="n"&gt;DB_DIR&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;ministry&amp;quot;&lt;/span&gt;
+&lt;span class="n"&gt;DB_DIR&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"ministry"&lt;/span&gt;
 &lt;span class="n"&gt;REPLACEMENTS&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
-    &lt;span class="s2"&gt;&amp;quot; (original mix)&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="s2"&gt;&amp;quot; - &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; / &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="s2"&gt;&amp;quot;-&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot; / &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
-    &lt;span class="s2"&gt;&amp;quot; / &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;/&amp;quot;&lt;/span&gt;
+    &lt;span class="s2"&gt;" (original mix)"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;""&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;" - "&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;" / "&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;"-"&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;" / "&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="s2"&gt;" / "&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"/"&lt;/span&gt;
 &lt;span class="p"&gt;}&lt;/span&gt;
 
 
 &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;parse_cd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;replacements&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="sd"&gt;&amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+    &lt;span class="sd"&gt;"""&lt;/span&gt;
 &lt;span class="sd"&gt;    Takes the path to a FreeDB CD file and parses all&lt;/span&gt;
 &lt;span class="sd"&gt;    key/value pairs into a dictionary.&lt;/span&gt;
-&lt;span class="sd"&gt;    &amp;quot;&amp;quot;&amp;quot;&lt;/span&gt;
+&lt;span class="sd"&gt;    """&lt;/span&gt;
     &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;replacements&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="bp"&gt;None&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="n"&gt;replacements&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
     &lt;span class="n"&gt;lines&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
-    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;r&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"r"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
         &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;readlines&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
             &lt;span class="c1"&gt;# Remove newline chars&lt;/span&gt;
             &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rstrip&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
             &lt;span class="c1"&gt;# Ignore any comments or lines without an equals in&lt;/span&gt;
-            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;=&amp;quot;&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;or&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;startswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;#&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="s2"&gt;"="&lt;/span&gt; &lt;span class="ow"&gt;not&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;or&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;startswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"#"&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
                 &lt;span class="k"&gt;continue&lt;/span&gt;
 
             &lt;span class="c1"&gt;# Extract the keys and values, forcing the values to be&lt;/span&gt;
             &lt;span class="c1"&gt;# lower case&lt;/span&gt;
-            &lt;span class="n"&gt;eq_index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;=&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+            &lt;span class="n"&gt;eq_index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"="&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
             &lt;span class="n"&gt;key&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[:&lt;/span&gt;&lt;span class="n"&gt;eq_index&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
             &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;eq_index&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:]&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;lower&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 
             &lt;span class="c1"&gt;# Take a dictionary of strings to search and replace eg.&lt;/span&gt;
-            &lt;span class="c1"&gt;# {&amp;quot; (original mix)&amp;quot;: &amp;quot;&amp;quot;, &amp;quot; - &amp;quot;: &amp;quot; / &amp;quot;}&lt;/span&gt;
+            &lt;span class="c1"&gt;# {" (original mix)": "", " - ": " / "}&lt;/span&gt;
             &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;old&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;replacements&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
                 &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;replace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;old&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;new&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 
@@ -335,7 +295,7 @@ darude/sandstorm: 25
     &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;lines&lt;/span&gt;
 
 
-&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;__main__&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vm"&gt;__name__&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="s2"&gt;"__main__"&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
     &lt;span class="n"&gt;tracks_count&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
 
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;filename&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;listdir&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DB_DIR&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
@@ -343,7 +303,7 @@ darude/sandstorm: 25
         &lt;span class="n"&gt;cd&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;parse_cd&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;os&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;join&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;DB_DIR&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;REPLACEMENTS&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
         &lt;span class="c1"&gt;# Extract the tracks&lt;/span&gt;
         &lt;span class="n"&gt;tracks&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
-            &lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;keys&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;startswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;TTITLE&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+            &lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;cd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;keys&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;startswith&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"TTITLE"&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
 
         &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;track&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;tracks&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
             &lt;span class="c1"&gt;# If the track has appeared already, increment its counter&lt;/span&gt;
@@ -357,5 +317,5 @@ darude/sandstorm: 25
     &lt;span class="c1"&gt;# amount of appearances&lt;/span&gt;
     &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;track_count&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="nb"&gt;sorted&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
             &lt;span class="n"&gt;tracks_count&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]):&lt;/span&gt;
-        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;: &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;track_count&lt;/span&gt;
+        &lt;span class="k"&gt;print&lt;/span&gt; &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;: &lt;/span&gt;&lt;span class="si"&gt;%s&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="n"&gt;track_count&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;</content><category term="python"></category></entry></feed>
