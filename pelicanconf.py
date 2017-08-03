@@ -36,4 +36,15 @@ DEFAULT_PAGINATION = 10
 
 THEME = "themes/elegant-custom"
 
-GOOGLE_ANALYTICS = "UA-103982821-1"
+LANDING_PAGE_ABOUT = dict(
+    title="Beta not Best",
+    details="""
+    <div>Freelance backend developer, DevOps and tech wrangler.</div>
+    <hr />
+    <ul>
+      <li><a href="https://github.com/flyte">Github</a></li>
+      <li><a href="https://stackoverflow.com/cv/ellis">Stack Overflow Careers CV</a></li>
+    </ul>
+    <hr />
+    """
+)
